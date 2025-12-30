@@ -337,4 +337,6 @@ CMakeFiles/PromptSnippetManager.dir/foldertreemodel.cpp.o: \
  /usr/include/x86_64-linux-gnu/qt6/QtCore/QDataStream \
  /usr/include/x86_64-linux-gnu/qt6/QtCore/qdatastream.h \
  /usr/include/x86_64-linux-gnu/qt6/QtCore/QIODevice \
- /usr/include/x86_64-linux-gnu/qt6/QtCore/qiodevice.h
+ /usr/include/x86_64-linux-gnu/qt6/QtCore/qiodevice.h \
+ /usr/include/x86_64-linux-gnu/qt6/QtCore/QUuid \
+ /usr/include/x86_64-linux-gnu/qt6/QtCore/quuid.h

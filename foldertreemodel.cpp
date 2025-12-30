@@ -4,6 +4,7 @@
 #include <QMimeData>
 #include <QDataStream>
 #include <QIODevice>
+#include <QUuid>
 
 FolderTreeModel::FolderTreeModel(QObject *parent)
     : QAbstractItemModel(parent)
@@ -267,7 +268,7 @@ bool FolderTreeModel::insertFolder(const QModelIndex &parent, const QString &nam
     beginInsertRows(parent, parentItem->childCount(), parentItem->childCount());
     parentItem->appendChild(
         new FolderTreeItem(FolderTreeItem::FolderType, name,
-                          "folder_" + QString::number(QDateTime::currentMSecsSinceEpoch()),
+                          "folder_" + QUuid::createUuid().toString(QUuid::WithoutBraces),
                           parentItem));
     endInsertRows();
 

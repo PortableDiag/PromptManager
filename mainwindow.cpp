@@ -664,13 +664,30 @@ QString MainWindow::getCurrentFolderPath() const
         return QString();
     }
 
+    // Convert proxy index to source model index to check item type
+    QModelIndex sourceIndex = folderProxyModel->mapToSource(currentIndex);
+    if (sourceIndex.isValid()) {
+        FolderTreeItem *item = static_cast<FolderTreeItem*>(sourceIndex.internalPointer());
+        if (item && item->type() == FolderTreeItem::PromptType) {
+            // If a prompt is selected, use its parent folder
+            currentIndex = currentIndex.parent();
+        }
+    }
+
     QStringList pathParts;
     QModelIndex index = currentIndex;
 
     while (index.isValid()) {
-        QString name = folderProxyModel->data(index, Qt::DisplayRole).toString();
-        if (!name.isEmpty() && name != "Root") {
-            pathParts.prepend(name);
+        // Check if this item is a folder (not a prompt)
+        QModelIndex srcIndex = folderProxyModel->mapToSource(index);
+        if (srcIndex.isValid()) {
+            FolderTreeItem *item = static_cast<FolderTreeItem*>(srcIndex.internalPointer());
+            if (item && item->type() == FolderTreeItem::FolderType) {
+                QString name = folderProxyModel->data(index, Qt::DisplayRole).toString();
+                if (!name.isEmpty() && name != "Root") {
+                    pathParts.prepend(name);
+                }
+            }
         }
         index = folderProxyModel->parent(index);
     }
@@ -1462,6 +1479,18 @@ void MainWindow::newPrompt()
 void MainWindow::newFolder()
 {
     QModelIndex parentIndex = getCurrentFolderIndex();
+    
+    // If a prompt is selected, use its parent folder instead
+    if (parentIndex.isValid()) {
+        QModelIndex sourceIndex = folderProxyModel->mapToSource(parentIndex);
+        if (sourceIndex.isValid()) {
+            FolderTreeItem *item = static_cast<FolderTreeItem*>(sourceIndex.internalPointer());
+            if (item && item->type() == FolderTreeItem::PromptType) {
+                parentIndex = parentIndex.parent();
+            }
+        }
+    }
+    
     if (!parentIndex.isValid()) {
         parentIndex = QModelIndex();
     }
@@ -1502,7 +1531,16 @@ void MainWindow::savePrompt()
         prompts.append(prompt);
 
         QModelIndex folderIndex = getCurrentFolderIndex();
+        
+        // If a prompt is selected, use its parent folder instead
         QModelIndex sourceIndex = folderProxyModel->mapToSource(folderIndex);
+        if (sourceIndex.isValid()) {
+            FolderTreeItem *item = static_cast<FolderTreeItem*>(sourceIndex.internalPointer());
+            if (item && item->type() == FolderTreeItem::PromptType) {
+                sourceIndex = sourceIndex.parent();
+            }
+        }
+        
         folderModel->insertPrompt(sourceIndex, title, prompt.id);
 
         currentPromptId = prompt.id;

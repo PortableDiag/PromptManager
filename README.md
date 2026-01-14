@@ -24,24 +24,129 @@ A Qt6-based desktop application for organizing and managing text prompts/snippet
 - CMake (3.16 or later)
 - C++17 compatible compiler
 
-### Build Instructions
+---
 
+### Linux
+
+#### Install Dependencies
+
+**Ubuntu/Debian:**
 ```bash
-# Clone the repository
+sudo apt update
+sudo apt install qt6-base-dev cmake build-essential
+```
+
+**Fedora:**
+```bash
+sudo dnf install qt6-qtbase-devel cmake gcc-c++
+```
+
+**Arch Linux:**
+```bash
+sudo pacman -S qt6-base cmake base-devel
+```
+
+#### Build & Run
+```bash
 git clone <repository-url>
 cd PromptManager_v2
-
-# Create build directory
-mkdir build
-cd build
-
-# Configure and build
+mkdir build && cd build
 cmake ..
-make -j4
-
-# Run the application
+make -j$(nproc)
 ./PromptSnippetManager
 ```
+
+---
+
+### macOS
+
+#### Install Dependencies
+
+**Using Homebrew (recommended):**
+```bash
+brew install qt@6 cmake
+```
+
+You may need to add Qt to your PATH:
+```bash
+echo 'export PATH="/opt/homebrew/opt/qt@6/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+**Using Qt Installer:**
+Download and install from [qt.io](https://www.qt.io/download-qt-installer)
+
+#### Build & Run
+```bash
+git clone <repository-url>
+cd PromptManager_v2
+mkdir build && cd build
+cmake ..
+make -j$(sysctl -n hw.ncpu)
+./PromptSnippetManager
+```
+
+To create a macOS app bundle:
+```bash
+macdeployqt PromptSnippetManager.app
+```
+
+---
+
+### Windows
+
+#### Install Dependencies
+
+**Option 1: Qt Online Installer (recommended)**
+1. Download the Qt installer from [qt.io](https://www.qt.io/download-qt-installer)
+2. Install Qt 6.2+ with the MSVC or MinGW toolchain
+3. Install CMake from [cmake.org](https://cmake.org/download/) or via Qt
+
+**Option 2: Using vcpkg**
+```powershell
+vcpkg install qt6-base:x64-windows
+```
+
+**Option 3: Using MSYS2/MinGW**
+```bash
+pacman -S mingw-w64-x86_64-qt6-base mingw-w64-x86_64-cmake mingw-w64-x86_64-gcc
+```
+
+#### Build & Run
+
+**Using Qt Creator (easiest):**
+1. Open `CMakeLists.txt` in Qt Creator
+2. Configure the project with your Qt kit
+3. Build and run from the IDE
+
+**Using Command Line (MSVC):**
+```powershell
+# Open "Developer Command Prompt for VS" or "x64 Native Tools Command Prompt"
+git clone <repository-url>
+cd PromptManager_v2
+mkdir build && cd build
+cmake .. -G "Visual Studio 17 2022" -A x64
+cmake --build . --config Release
+.\Release\PromptSnippetManager.exe
+```
+
+**Using Command Line (MinGW):**
+```bash
+git clone <repository-url>
+cd PromptManager_v2
+mkdir build && cd build
+cmake .. -G "MinGW Makefiles"
+mingw32-make -j4
+./PromptSnippetManager.exe
+```
+
+#### Deploying on Windows
+To create a standalone executable with all required DLLs:
+```powershell
+windeployqt PromptSnippetManager.exe
+```
+
+---
 
 ## Usage
 

@@ -521,6 +521,13 @@ void MainWindow::loadPrompts()
 
                 if (!folderPath.isEmpty()) {
                     QStringList pathParts = folderPath.split('/');
+                    
+                    // Check if the last part of the path is the same as the prompt title
+                    // If so, it's likely a mistake - the prompt shouldn't create a folder with its own name
+                    if (!pathParts.isEmpty() && pathParts.last() == prompt.title) {
+                        pathParts.removeLast();
+                    }
+                    
                     for (const QString &part : pathParts) {
                         if (!part.isEmpty()) {
                             bool found = false;
@@ -545,8 +552,28 @@ void MainWindow::loadPrompts()
         }
     }
 
+    // Clean up incorrect folder paths where the prompt name is included in the path
+    bool dataChanged = false;
+    for (Prompt &prompt : prompts) {
+        if (!prompt.folderPath.isEmpty()) {
+            QStringList pathParts = prompt.folderPath.split('/');
+            if (!pathParts.isEmpty() && pathParts.last() == prompt.title) {
+                // Remove the last part (the prompt title) from the folder path
+                pathParts.removeLast();
+                prompt.folderPath = pathParts.join('/');
+                dataChanged = true;
+            }
+        }
+    }
+    
+    if (dataChanged) {
+        savePrompts();
+        statusBar()->showMessage(QString("Loaded %1 prompts (fixed folder paths)").arg(prompts.size()));
+    } else {
+        statusBar()->showMessage(QString("Loaded %1 prompts").arg(prompts.size()));
+    }
+    
     folderTreeView->expandAll();
-    statusBar()->showMessage(QString("Loaded %1 prompts").arg(prompts.size()));
 }
 
 void MainWindow::savePrompts()

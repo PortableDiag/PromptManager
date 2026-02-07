@@ -146,7 +146,6 @@ void MainWindow::setupUI()
             padding: 8px 15px;
             border-radius: 4px;
             border: 1px solid #ccc;
-            background-color: #f8f8f8;
         }
     )");
 
@@ -159,7 +158,7 @@ void MainWindow::setupUI()
     folderLayout->setContentsMargins(0, 0, 0, 0);
 
     QLabel *folderLabel = new QLabel("Folders");
-    folderLabel->setStyleSheet("font-weight: bold; font-size: 14px; color: #333;");
+    folderLabel->setStyleSheet("font-weight: bold; font-size: 14px; color: #e0e0e0;");
     folderLayout->addWidget(folderLabel);
 
     folderModel = new FolderTreeModel(this);
@@ -247,7 +246,7 @@ void MainWindow::setupUI()
     rightLayout->setSpacing(10);
 
     QLabel *titleLabel = new QLabel("Title");
-    titleLabel->setStyleSheet("font-weight: bold; font-size: 14px; color: #333;");
+    titleLabel->setStyleSheet("font-weight: bold; font-size: 14px; color: #e0e0e0;");
     rightLayout->addWidget(titleLabel);
 
     titleEdit = new QLineEdit;
@@ -255,7 +254,7 @@ void MainWindow::setupUI()
     rightLayout->addWidget(titleEdit);
 
     QLabel *bodyLabel = new QLabel("Body");
-    bodyLabel->setStyleSheet("font-weight: bold; font-size: 14px; color: #333; margin-top: 10px;");
+    bodyLabel->setStyleSheet("font-weight: bold; font-size: 14px; color: #e0e0e0; margin-top: 10px;");
     rightLayout->addWidget(bodyLabel);
 
     bodyEdit = new QPlainTextEdit;
@@ -341,7 +340,7 @@ void MainWindow::setupUI()
 
     noPromptLabel = new QLabel("No prompt selected. Select a prompt or create a new one.");
     noPromptLabel->setAlignment(Qt::AlignCenter);
-    noPromptLabel->setStyleSheet("color: #666666; font-style: italic; padding: 20px;");
+    noPromptLabel->setStyleSheet("color: #aaaaaa; font-style: italic; padding: 20px;");
     rightLayout->addWidget(noPromptLabel);
 
     mainSplitter->addWidget(rightPanel);

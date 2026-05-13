@@ -196,6 +196,27 @@ void MainWindow::setupUI()
     )");
     folderLayout->addWidget(newFolderButton);
 
+    togglePromptListButton = new QPushButton("Hide Prompt List");
+    togglePromptListButton->setToolTip("Collapse or expand the prompt list panel below");
+    togglePromptListButton->setStyleSheet(R"(
+        QPushButton {
+            background-color: #3a3a3a;
+            color: #e0e0e0;
+            border: 1px solid #555;
+            padding: 2px 8px;
+            border-radius: 3px;
+            margin: 0px 5px 2px 5px;
+            font-size: 11px;
+        }
+        QPushButton:hover {
+            background-color: #4a4a4a;
+        }
+        QPushButton:pressed {
+            background-color: #2a2a2a;
+        }
+    )");
+    folderLayout->addWidget(togglePromptListButton);
+
     leftSplitter->addWidget(folderWidget);
 
     QWidget *promptListWidget = new QWidget;
@@ -466,6 +487,36 @@ void MainWindow::setupConnections()
             this, &MainWindow::copyToClipboard);
     connect(newFolderButton, &QPushButton::clicked,
             this, &MainWindow::newFolder);
+
+    connect(togglePromptListButton, &QPushButton::clicked, this, [this]() {
+        QList<int> sizes = leftSplitter->sizes();
+        if (sizes.size() < 2) return;
+        if (sizes[1] == 0) {
+            QList<int> restore = lastLeftSplitterSizes;
+            if (restore.size() != 2 || (restore[0] == 0 && restore[1] == 0)) {
+                int total = sizes[0] + sizes[1];
+                if (total <= 0) total = leftSplitter->height();
+                restore = {total / 3, (total * 2) / 3};
+            }
+            leftSplitter->setSizes(restore);
+            togglePromptListButton->setText("Hide Prompt List");
+        } else {
+            lastLeftSplitterSizes = sizes;
+            leftSplitter->setSizes({sizes[0] + sizes[1], 0});
+            togglePromptListButton->setText("Show Prompt List");
+        }
+    });
+
+    connect(leftSplitter, &QSplitter::splitterMoved, this, [this](int, int) {
+        QList<int> sizes = leftSplitter->sizes();
+        if (sizes.size() < 2) return;
+        if (sizes[1] == 0) {
+            togglePromptListButton->setText("Show Prompt List");
+        } else {
+            togglePromptListButton->setText("Hide Prompt List");
+            lastLeftSplitterSizes = sizes;
+        }
+    });
 }
 
 void MainWindow::loadPrompts()

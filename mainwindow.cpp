@@ -1824,7 +1824,11 @@ void MainWindow::copyToClipboard()
     }
 
     QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(bodyEdit->toPlainText());
+    const QString text = bodyEdit->toPlainText();
+    clipboard->setText(text, QClipboard::Clipboard);
+    if (clipboard->supportsSelection()) {
+        clipboard->setText(text, QClipboard::Selection);
+    }
 
     statusBar()->showMessage("Copied to clipboard");
 }

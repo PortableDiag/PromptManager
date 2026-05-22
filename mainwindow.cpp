@@ -196,7 +196,7 @@ void MainWindow::setupUI()
     )");
     folderLayout->addWidget(newFolderButton);
 
-    togglePromptListButton = new QPushButton("Hide Prompt List");
+    togglePromptListButton = new QPushButton("Show Prompt List");
     togglePromptListButton->setToolTip("Collapse or expand the prompt list panel below");
     togglePromptListButton->setStyleSheet(R"(
         QPushButton {
@@ -257,7 +257,8 @@ void MainWindow::setupUI()
     promptListLayout->addWidget(promptListView);
 
     leftSplitter->addWidget(promptListWidget);
-    leftSplitter->setSizes({200, 400});
+    leftSplitter->setSizes({1, 0});
+    lastLeftSplitterSizes = {200, 400};
 
     mainSplitter->addWidget(leftSplitter);
 
@@ -626,13 +627,43 @@ void MainWindow::loadPrompts()
     folderTreeView->expandAll();
 }
 
+static void collectPromptIdsInTreeOrder(FolderTreeModel *model,
+                                        const QModelIndex &parent,
+                                        QStringList &ids)
+{
+    int rows = model->rowCount(parent);
+    for (int i = 0; i < rows; ++i) {
+        QModelIndex idx = model->index(i, 0, parent);
+        FolderTreeItem *item = model->getItem(idx);
+        if (!item)
+            continue;
+        if (item->type() == FolderTreeItem::FolderType) {
+            collectPromptIdsInTreeOrder(model, idx, ids);
+        } else if (item->type() == FolderTreeItem::PromptType) {
+            ids.append(item->id());
+        }
+    }
+}
+
 void MainWindow::savePrompts()
 {
     QJsonObject root;
     QJsonArray promptArray;
 
+    QStringList orderedIds;
+    collectPromptIdsInTreeOrder(folderModel, QModelIndex(), orderedIds);
+
+    QSet<QString> writtenIds;
+    for (const QString &id : orderedIds) {
+        int idx = findPromptIndex(id);
+        if (idx >= 0) {
+            promptArray.append(prompts[idx].toJson());
+            writtenIds.insert(id);
+        }
+    }
     for (const Prompt &prompt : prompts) {
-        promptArray.append(prompt.toJson());
+        if (!writtenIds.contains(prompt.id))
+            promptArray.append(prompt.toJson());
     }
 
     root["prompts"] = promptArray;

@@ -219,33 +219,40 @@ bool FolderTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
             }
         }
 
-        // Calculate the insertion row
-        int insertRow = row;
-        if (insertRow == -1) {
-            insertRow = parentItem->childCount();
+        // Calculate the destination row (pre-move indexing, as beginMoveRows expects)
+        int destinationRow = row;
+        if (destinationRow == -1) {
+            destinationRow = parentItem->childCount();
         }
 
-        // If we're moving within the same parent and the item is before the target position,
-        // adjust the insertion row
-        if (originalItem->parent() == parentItem && originalItem->row() < insertRow) {
-            insertRow--;
+        int sourceRow = originalItem->row();
+
+        // Skip no-op moves within the same parent (Qt forbids destinationChild
+        // in [sourceFirst, sourceLast+1] when source and destination parents match)
+        if (originalItem->parent() == parentItem &&
+            (destinationRow == sourceRow || destinationRow == sourceRow + 1)) {
+            continue;
         }
 
-        // Begin the move operation
-        beginMoveRows(originalIndex.parent(), originalItem->row(), originalItem->row(),
-                      parent, insertRow);
+        if (!beginMoveRows(originalIndex.parent(), sourceRow, sourceRow,
+                           parent, destinationRow)) {
+            continue;
+        }
 
-        // Remove from old parent
+        // After removal, indices shift down by one if the source was before the destination
+        int insertPosition = destinationRow;
+        if (originalItem->parent() == parentItem && sourceRow < destinationRow) {
+            insertPosition--;
+        }
+
         originalItem->parent()->removeChild(originalItem);
 
-        // Insert into new parent
-        if (insertRow >= parentItem->childCount()) {
+        if (insertPosition >= parentItem->childCount()) {
             parentItem->appendChild(originalItem);
         } else {
-            parentItem->insertChild(insertRow, originalItem);
+            parentItem->insertChild(insertPosition, originalItem);
         }
 
-        // Update the parent pointer
         originalItem->setParent(parentItem);
 
         endMoveRows();

@@ -124,6 +124,7 @@ private:
     QPushButton *deleteButton;
     QPushButton *copyButton;
     QPushButton *newFolderButton;
+    QPushButton *toggleFoldersButton;
     QPushButton *togglePromptListButton;
     QList<int> lastLeftSplitterSizes;
     QLabel *noPromptLabel;

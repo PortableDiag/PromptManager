@@ -157,9 +157,35 @@ void MainWindow::setupUI()
     QVBoxLayout *folderLayout = new QVBoxLayout(folderWidget);
     folderLayout->setContentsMargins(0, 0, 0, 0);
 
+    QHBoxLayout *folderHeaderLayout = new QHBoxLayout;
+    folderHeaderLayout->setContentsMargins(0, 0, 0, 0);
+
     QLabel *folderLabel = new QLabel("Folders");
     folderLabel->setStyleSheet("font-weight: bold; font-size: 14px; color: #e0e0e0;");
-    folderLayout->addWidget(folderLabel);
+    folderHeaderLayout->addWidget(folderLabel);
+    folderHeaderLayout->addStretch();
+
+    toggleFoldersButton = new QPushButton("Collapse All");
+    toggleFoldersButton->setToolTip("Collapse or expand all folders");
+    toggleFoldersButton->setStyleSheet(R"(
+        QPushButton {
+            background-color: #3a3a3a;
+            color: #e0e0e0;
+            border: 1px solid #555;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+        QPushButton:hover {
+            background-color: #4a4a4a;
+        }
+        QPushButton:pressed {
+            background-color: #2a2a2a;
+        }
+    )");
+    folderHeaderLayout->addWidget(toggleFoldersButton);
+
+    folderLayout->addLayout(folderHeaderLayout);
 
     folderModel = new FolderTreeModel(this);
     folderProxyModel = new QSortFilterProxyModel(this);
@@ -488,6 +514,16 @@ void MainWindow::setupConnections()
             this, &MainWindow::copyToClipboard);
     connect(newFolderButton, &QPushButton::clicked,
             this, &MainWindow::newFolder);
+
+    connect(toggleFoldersButton, &QPushButton::clicked, this, [this]() {
+        if (toggleFoldersButton->text() == "Collapse All") {
+            folderTreeView->collapseAll();
+            toggleFoldersButton->setText("Expand All");
+        } else {
+            folderTreeView->expandAll();
+            toggleFoldersButton->setText("Collapse All");
+        }
+    });
 
     connect(togglePromptListButton, &QPushButton::clicked, this, [this]() {
         QList<int> sizes = leftSplitter->sizes();

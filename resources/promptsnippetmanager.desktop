@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Prompt Snippet Manager
+GenericName=Prompt Manager
+Comment=Organize and manage reusable text prompts and snippets
+Exec=PromptSnippetManager
+Icon=promptsnippetmanager
+Terminal=false
+Categories=Utility;TextEditor;Office;
+Keywords=prompt;snippet;text;clipboard;template;

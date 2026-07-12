@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(PromptSnippetManager VERSION 1.0.0 LANGUAGES CXX)
+project(PromptSnippetManager VERSION 2.1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -15,13 +15,17 @@ set(SOURCES
     foldertreemodel.cpp
 )
 
+set(RESOURCES
+    resources/resources.qrc
+)
+
 set(HEADERS
     mainwindow.h
     foldertreeitem.h
     foldertreemodel.h
 )
 
-add_executable(PromptSnippetManager ${SOURCES} ${HEADERS})
+add_executable(PromptSnippetManager ${SOURCES} ${HEADERS} ${RESOURCES})
 
 target_link_libraries(PromptSnippetManager PRIVATE
     Qt6::Core
@@ -30,3 +34,13 @@ target_link_libraries(PromptSnippetManager PRIVATE
 )
 
 install(TARGETS PromptSnippetManager DESTINATION bin)
+
+if(UNIX AND NOT APPLE)
+    install(FILES resources/promptsnippetmanager.desktop
+            DESTINATION share/applications)
+    foreach(SIZE 16 24 32 48 64 128 256 512)
+        install(FILES resources/icons/app-${SIZE}.png
+                DESTINATION share/icons/hicolor/${SIZE}x${SIZE}/apps
+                RENAME promptsnippetmanager.png)
+    endforeach()
+endif()

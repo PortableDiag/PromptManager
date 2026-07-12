@@ -9,6 +9,7 @@ PromptSnippetManager_autogen/timestamp: \
 	/media/veracrypt1/C++/PromptManager_v2/main.cpp \
 	/media/veracrypt1/C++/PromptManager_v2/mainwindow.cpp \
 	/media/veracrypt1/C++/PromptManager_v2/mainwindow.h \
+	/media/veracrypt1/C++/PromptManager_v2/resources/resources.qrc \
 	/usr/include/alloca.h \
 	/usr/include/asm-generic/errno-base.h \
 	/usr/include/asm-generic/errno.h \

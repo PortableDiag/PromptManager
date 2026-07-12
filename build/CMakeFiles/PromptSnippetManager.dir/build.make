@@ -76,10 +76,24 @@ PromptSnippetManager_autogen/timestamp: CMakeFiles/PromptSnippetManager.dir/comp
 	/usr/bin/cmake -E cmake_autogen /media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles/PromptSnippetManager_autogen.dir/AutogenInfo.json ""
 	/usr/bin/cmake -E touch /media/veracrypt1/C++/PromptManager_v2/build/PromptSnippetManager_autogen/timestamp
 
+PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp: /media/veracrypt1/C++/PromptManager_v2/resources/resources.qrc
+PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp: CMakeFiles/PromptSnippetManager_autogen.dir/AutoRcc_resources_3YJK5W5UP7_Info.json
+PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp: /media/veracrypt1/C++/PromptManager_v2/resources/icons/app-16.png
+PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp: /media/veracrypt1/C++/PromptManager_v2/resources/icons/app-48.png
+PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp: /media/veracrypt1/C++/PromptManager_v2/resources/icons/app-32.png
+PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp: /media/veracrypt1/C++/PromptManager_v2/resources/icons/app-512.png
+PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp: /media/veracrypt1/C++/PromptManager_v2/resources/icons/app-24.png
+PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp: /media/veracrypt1/C++/PromptManager_v2/resources/icons/app-64.png
+PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp: /media/veracrypt1/C++/PromptManager_v2/resources/icons/app-128.png
+PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp: /media/veracrypt1/C++/PromptManager_v2/resources/icons/app-256.png
+PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp: /usr/lib/qt6/libexec/rcc
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Automatic RCC for resources/resources.qrc"
+	/usr/bin/cmake -E cmake_autorcc /media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles/PromptSnippetManager_autogen.dir/AutoRcc_resources_3YJK5W5UP7_Info.json 
+
 CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/mocs_compilation.cpp.o: CMakeFiles/PromptSnippetManager.dir/flags.make
 CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/mocs_compilation.cpp.o: PromptSnippetManager_autogen/mocs_compilation.cpp
 CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/mocs_compilation.cpp.o: CMakeFiles/PromptSnippetManager.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/mocs_compilation.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/mocs_compilation.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/mocs_compilation.cpp.o -MF CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/mocs_compilation.cpp.o.d -o CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/mocs_compilation.cpp.o -c /media/veracrypt1/C++/PromptManager_v2/build/PromptSnippetManager_autogen/mocs_compilation.cpp
 
 CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/mocs_compilation.cpp.i: cmake_force
@@ -93,7 +107,7 @@ CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/mocs_compilatio
 CMakeFiles/PromptSnippetManager.dir/main.cpp.o: CMakeFiles/PromptSnippetManager.dir/flags.make
 CMakeFiles/PromptSnippetManager.dir/main.cpp.o: /media/veracrypt1/C++/PromptManager_v2/main.cpp
 CMakeFiles/PromptSnippetManager.dir/main.cpp.o: CMakeFiles/PromptSnippetManager.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/PromptSnippetManager.dir/main.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/PromptSnippetManager.dir/main.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/PromptSnippetManager.dir/main.cpp.o -MF CMakeFiles/PromptSnippetManager.dir/main.cpp.o.d -o CMakeFiles/PromptSnippetManager.dir/main.cpp.o -c /media/veracrypt1/C++/PromptManager_v2/main.cpp
 
 CMakeFiles/PromptSnippetManager.dir/main.cpp.i: cmake_force
@@ -107,7 +121,7 @@ CMakeFiles/PromptSnippetManager.dir/main.cpp.s: cmake_force
 CMakeFiles/PromptSnippetManager.dir/mainwindow.cpp.o: CMakeFiles/PromptSnippetManager.dir/flags.make
 CMakeFiles/PromptSnippetManager.dir/mainwindow.cpp.o: /media/veracrypt1/C++/PromptManager_v2/mainwindow.cpp
 CMakeFiles/PromptSnippetManager.dir/mainwindow.cpp.o: CMakeFiles/PromptSnippetManager.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/PromptSnippetManager.dir/mainwindow.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/PromptSnippetManager.dir/mainwindow.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/PromptSnippetManager.dir/mainwindow.cpp.o -MF CMakeFiles/PromptSnippetManager.dir/mainwindow.cpp.o.d -o CMakeFiles/PromptSnippetManager.dir/mainwindow.cpp.o -c /media/veracrypt1/C++/PromptManager_v2/mainwindow.cpp
 
 CMakeFiles/PromptSnippetManager.dir/mainwindow.cpp.i: cmake_force
@@ -121,7 +135,7 @@ CMakeFiles/PromptSnippetManager.dir/mainwindow.cpp.s: cmake_force
 CMakeFiles/PromptSnippetManager.dir/foldertreemodel.cpp.o: CMakeFiles/PromptSnippetManager.dir/flags.make
 CMakeFiles/PromptSnippetManager.dir/foldertreemodel.cpp.o: /media/veracrypt1/C++/PromptManager_v2/foldertreemodel.cpp
 CMakeFiles/PromptSnippetManager.dir/foldertreemodel.cpp.o: CMakeFiles/PromptSnippetManager.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/PromptSnippetManager.dir/foldertreemodel.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/PromptSnippetManager.dir/foldertreemodel.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/PromptSnippetManager.dir/foldertreemodel.cpp.o -MF CMakeFiles/PromptSnippetManager.dir/foldertreemodel.cpp.o.d -o CMakeFiles/PromptSnippetManager.dir/foldertreemodel.cpp.o -c /media/veracrypt1/C++/PromptManager_v2/foldertreemodel.cpp
 
 CMakeFiles/PromptSnippetManager.dir/foldertreemodel.cpp.i: cmake_force
@@ -132,12 +146,27 @@ CMakeFiles/PromptSnippetManager.dir/foldertreemodel.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/PromptSnippetManager.dir/foldertreemodel.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /media/veracrypt1/C++/PromptManager_v2/foldertreemodel.cpp -o CMakeFiles/PromptSnippetManager.dir/foldertreemodel.cpp.s
 
+CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.o: CMakeFiles/PromptSnippetManager.dir/flags.make
+CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.o: PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp
+CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.o: CMakeFiles/PromptSnippetManager.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.o -MF CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.o.d -o CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.o -c /media/veracrypt1/C++/PromptManager_v2/build/PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp
+
+CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /media/veracrypt1/C++/PromptManager_v2/build/PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp > CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.i
+
+CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /media/veracrypt1/C++/PromptManager_v2/build/PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp -o CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.s
+
 # Object files for target PromptSnippetManager
 PromptSnippetManager_OBJECTS = \
 "CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/mocs_compilation.cpp.o" \
 "CMakeFiles/PromptSnippetManager.dir/main.cpp.o" \
 "CMakeFiles/PromptSnippetManager.dir/mainwindow.cpp.o" \
-"CMakeFiles/PromptSnippetManager.dir/foldertreemodel.cpp.o"
+"CMakeFiles/PromptSnippetManager.dir/foldertreemodel.cpp.o" \
+"CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.o"
 
 # External object files for target PromptSnippetManager
 PromptSnippetManager_EXTERNAL_OBJECTS =
@@ -146,6 +175,7 @@ PromptSnippetManager: CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_a
 PromptSnippetManager: CMakeFiles/PromptSnippetManager.dir/main.cpp.o
 PromptSnippetManager: CMakeFiles/PromptSnippetManager.dir/mainwindow.cpp.o
 PromptSnippetManager: CMakeFiles/PromptSnippetManager.dir/foldertreemodel.cpp.o
+PromptSnippetManager: CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.o
 PromptSnippetManager: CMakeFiles/PromptSnippetManager.dir/build.make
 PromptSnippetManager: /usr/lib/x86_64-linux-gnu/libQt6Widgets.so.6.4.2
 PromptSnippetManager: /usr/lib/x86_64-linux-gnu/libQt6Gui.so.6.4.2
@@ -153,7 +183,7 @@ PromptSnippetManager: /usr/lib/x86_64-linux-gnu/libQt6Core.so.6.4.2
 PromptSnippetManager: /usr/lib/x86_64-linux-gnu/libGLX.so
 PromptSnippetManager: /usr/lib/x86_64-linux-gnu/libOpenGL.so
 PromptSnippetManager: CMakeFiles/PromptSnippetManager.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable PromptSnippetManager"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX executable PromptSnippetManager"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/PromptSnippetManager.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -164,6 +194,7 @@ CMakeFiles/PromptSnippetManager.dir/clean:
 	$(CMAKE_COMMAND) -P CMakeFiles/PromptSnippetManager.dir/cmake_clean.cmake
 .PHONY : CMakeFiles/PromptSnippetManager.dir/clean
 
+CMakeFiles/PromptSnippetManager.dir/depend: PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp
 CMakeFiles/PromptSnippetManager.dir/depend: PromptSnippetManager_autogen/timestamp
 	cd /media/veracrypt1/C++/PromptManager_v2/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /media/veracrypt1/C++/PromptManager_v2 /media/veracrypt1/C++/PromptManager_v2 /media/veracrypt1/C++/PromptManager_v2/build /media/veracrypt1/C++/PromptManager_v2/build /media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles/PromptSnippetManager.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/PromptSnippetManager.dir/depend

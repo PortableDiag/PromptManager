@@ -66,10 +66,10 @@ include CMakeFiles/PromptSnippetManager_autogen_timestamp_deps.dir/compiler_depe
 # Include the progress variables for this target.
 include CMakeFiles/PromptSnippetManager_autogen_timestamp_deps.dir/progress.make
 
-CMakeFiles/PromptSnippetManager_autogen_timestamp_deps: /usr/lib/x86_64-linux-gnu/libQt6Widgets.so.6.4.2
-CMakeFiles/PromptSnippetManager_autogen_timestamp_deps: /usr/lib/x86_64-linux-gnu/libQt6Gui.so.6.4.2
 CMakeFiles/PromptSnippetManager_autogen_timestamp_deps: /usr/lib/x86_64-linux-gnu/libQt6Core.so.6.4.2
 CMakeFiles/PromptSnippetManager_autogen_timestamp_deps: /usr/lib/qt6/libexec/moc
+CMakeFiles/PromptSnippetManager_autogen_timestamp_deps: /usr/lib/x86_64-linux-gnu/libQt6Gui.so.6.4.2
+CMakeFiles/PromptSnippetManager_autogen_timestamp_deps: /usr/lib/x86_64-linux-gnu/libQt6Widgets.so.6.4.2
 CMakeFiles/PromptSnippetManager_autogen_timestamp_deps: /usr/lib/qt6/libexec/uic
 
 PromptSnippetManager_autogen_timestamp_deps: CMakeFiles/PromptSnippetManager_autogen_timestamp_deps

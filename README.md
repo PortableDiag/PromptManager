@@ -223,8 +223,29 @@ PromptManager_v2/
 ├── main.cpp                # Application entry point
 ├── mainwindow.cpp/h        # Main UI and business logic
 ├── foldertreemodel.cpp/h   # Tree model implementation
-└── foldertreeitem.h        # Tree item data structure
+├── foldertreeitem.h        # Tree item data structure
+└── resources/
+    ├── icon.svg            # Vector source for the app icon
+    ├── render_icon.py      # Rasterises icon.svg to the PNG/ICO sizes
+    ├── resources.qrc       # Qt resource bundle (icons compiled into the binary)
+    ├── icons/              # Generated PNGs (16-512px) and app.ico
+    └── promptsnippetmanager.desktop   # Linux desktop entry
 ```
+
+### Application Icon
+
+The icon is an amber squircle carrying a prompt chevron and snippet lines, using
+the same accent colour as the app's UI. `resources/icon.svg` is the source of
+truth; the PNGs and the Windows `.ico` are generated from it.
+
+To regenerate after editing the SVG (requires Pillow):
+```bash
+python3 resources/render_icon.py
+```
+This rewrites `resources/icons/`. The PNGs are compiled into the executable via
+`resources.qrc`, so a rebuild is all that's needed to pick up the change. On
+Linux, `make install` also installs the desktop entry and the hicolor theme
+icons so the app shows up in application menus.
 
 ### Recent Fixes
 - Fixed prompt-to-folder conversion bug in drag-and-drop

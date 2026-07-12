@@ -158,7 +158,8 @@
 		"/usr/lib/x86_64-linux-gnu/cmake/Qt6Widgets/Qt6WidgetsTargets-none.cmake",
 		"/usr/lib/x86_64-linux-gnu/cmake/Qt6Widgets/Qt6WidgetsAdditionalTargetInfo.cmake",
 		"/usr/lib/x86_64-linux-gnu/cmake/Qt6Widgets/Qt6WidgetsVersionlessTargets.cmake",
-		"/usr/lib/x86_64-linux-gnu/cmake/Qt6Widgets/Qt6WidgetsMacros.cmake"
+		"/usr/lib/x86_64-linux-gnu/cmake/Qt6Widgets/Qt6WidgetsMacros.cmake",
+		"/media/veracrypt1/C++/PromptManager_v2/resources/resources.qrc"
 	],
 	"CMAKE_SOURCE_DIR" : "/media/veracrypt1/C++/PromptManager_v2",
 	"DEP_FILE" : "/media/veracrypt1/C++/PromptManager_v2/build/PromptSnippetManager_autogen/deps",

@@ -200,6 +200,30 @@ PromptSnippetManager_autogen/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/PromptSnippetManager_autogen.dir/build.make CMakeFiles/PromptSnippetManager_autogen.dir/build
 .PHONY : PromptSnippetManager_autogen/fast
 
+PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.o: PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.o
+.PHONY : PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.o
+
+# target to build an object file
+PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/PromptSnippetManager.dir/build.make CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.o
+.PHONY : PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.o
+
+PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.i: PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.i
+.PHONY : PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.i
+
+# target to preprocess a source file
+PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/PromptSnippetManager.dir/build.make CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.i
+.PHONY : PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.i
+
+PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.s: PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.s
+.PHONY : PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.s
+
+# target to generate assembly for a file
+PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/PromptSnippetManager.dir/build.make CMakeFiles/PromptSnippetManager.dir/PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.s
+.PHONY : PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.cpp.s
+
 PromptSnippetManager_autogen/mocs_compilation.o: PromptSnippetManager_autogen/mocs_compilation.cpp.o
 .PHONY : PromptSnippetManager_autogen/mocs_compilation.o
 
@@ -311,6 +335,9 @@ help:
 	@echo "... PromptSnippetManager_autogen"
 	@echo "... PromptSnippetManager_autogen_timestamp_deps"
 	@echo "... PromptSnippetManager"
+	@echo "... PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.o"
+	@echo "... PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.i"
+	@echo "... PromptSnippetManager_autogen/3YJK5W5UP7/qrc_resources.s"
 	@echo "... PromptSnippetManager_autogen/mocs_compilation.o"
 	@echo "... PromptSnippetManager_autogen/mocs_compilation.i"
 	@echo "... PromptSnippetManager_autogen/mocs_compilation.s"

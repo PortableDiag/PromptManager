@@ -14,10 +14,10 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    app.setApplicationName("Prompt Snippet Manager");
-    app.setOrganizationName("PromptSnippet");
-    app.setApplicationVersion("2.1.0");
-    app.setDesktopFileName("promptsnippetmanager");
+    app.setApplicationName("Prompt Manager");
+    app.setOrganizationName("PromptManager");
+    app.setApplicationVersion("2.1.1");
+    app.setDesktopFileName("promptmanager");
     app.setWindowIcon(applicationIcon());
 
     MainWindow mainWindow;

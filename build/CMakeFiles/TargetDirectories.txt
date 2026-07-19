@@ -1,9 +1,0 @@
-/media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles/PromptSnippetManager.dir
-/media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles/edit_cache.dir
-/media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles/rebuild_cache.dir
-/media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles/list_install_components.dir
-/media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles/install.dir
-/media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles/install/local.dir
-/media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles/install/strip.dir
-/media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles/PromptSnippetManager_autogen_timestamp_deps.dir
-/media/veracrypt1/C++/PromptManager_v2/build/CMakeFiles/PromptSnippetManager_autogen.dir

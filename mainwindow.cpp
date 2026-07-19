@@ -104,7 +104,7 @@ MainWindow::MainWindow(QWidget *parent)
     loadPrompts();
     updateUI();
 
-    setWindowTitle("Prompt Snippet Manager with Import/Export");
+    setWindowTitle("Prompt Manager with Import/Export");
     resize(1000, 700);
 }
 
@@ -1932,18 +1932,18 @@ void MainWindow::updateUI()
     if (hasSelection) {
         QString title = titleEdit->text().isEmpty() ? "Untitled" : titleEdit->text();
         if (hasChanges) {
-            setWindowTitle(QString("%0* - Prompt Snippet Manager").arg(title));
+            setWindowTitle(QString("%0* - Prompt Manager").arg(title));
         } else {
-            setWindowTitle(QString("%0 - Prompt Snippet Manager").arg(title));
+            setWindowTitle(QString("%0 - Prompt Manager").arg(title));
         }
     } else if (isEditingNewPrompt) {
         if (hasChanges && !titleEdit->text().trimmed().isEmpty()) {
-            setWindowTitle("New Prompt* - Prompt Snippet Manager");
+            setWindowTitle("New Prompt* - Prompt Manager");
         } else {
-            setWindowTitle("New Prompt - Prompt Snippet Manager");
+            setWindowTitle("New Prompt - Prompt Manager");
         }
     } else {
-        setWindowTitle("Prompt Snippet Manager");
+        setWindowTitle("Prompt Manager");
     }
 
     titleEdit->update();

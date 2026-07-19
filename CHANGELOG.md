@@ -5,6 +5,17 @@ All notable changes to PromptManager will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2026-07-19
+
+### Changed
+- Renamed the application and its executable from "Prompt Snippet Manager"
+  (`PromptSnippetManager`) to "Prompt Manager" (`PromptManager`) for a
+  consistent name across the binary, window title, and desktop entry
+- Renamed the Linux desktop entry to `promptmanager.desktop`
+
+### Fixed
+- Stopped tracking the `build/` directory in git and added a `.gitignore`
+
 ## [2.1.0] - 2026-07-11
 
 ### Added
@@ -13,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   taskbar and app switcher
 - Icon shipped at 16-512px plus a Windows `.ico`; the SVG source and the
   Pillow rasteriser (`resources/render_icon.py`) live in `resources/`
-- Linux desktop entry (`promptsnippetmanager.desktop`) and hicolor icon theme
+- Linux desktop entry (`promptmanager.desktop`) and hicolor icon theme
   install rules, so the app appears properly in application menus
 - Collapse/expand all button for the Folders tree
 - Toggle button to collapse/expand the prompt list panel

@@ -1,4 +1,4 @@
-# Prompt Snippet Manager
+# Prompt Manager
 
 A Qt6-based desktop application for organizing and managing text prompts/snippets in a hierarchical folder structure. Perfect for developers, writers, and anyone who needs to organize reusable text snippets.
 
@@ -53,7 +53,7 @@ cd PromptManager_v2
 mkdir build && cd build
 cmake ..
 make -j$(nproc)
-./PromptSnippetManager
+./PromptManager
 ```
 
 ---
@@ -83,12 +83,12 @@ cd PromptManager_v2
 mkdir build && cd build
 cmake ..
 make -j$(sysctl -n hw.ncpu)
-./PromptSnippetManager
+./PromptManager
 ```
 
 To create a macOS app bundle:
 ```bash
-macdeployqt PromptSnippetManager.app
+macdeployqt PromptManager.app
 ```
 
 ---
@@ -127,7 +127,7 @@ cd PromptManager_v2
 mkdir build && cd build
 cmake .. -G "Visual Studio 17 2022" -A x64
 cmake --build . --config Release
-.\Release\PromptSnippetManager.exe
+.\Release\PromptManager.exe
 ```
 
 **Using Command Line (MinGW):**
@@ -137,13 +137,13 @@ cd PromptManager_v2
 mkdir build && cd build
 cmake .. -G "MinGW Makefiles"
 mingw32-make -j4
-./PromptSnippetManager.exe
+./PromptManager.exe
 ```
 
 #### Deploying on Windows
 To create a standalone executable with all required DLLs:
 ```powershell
-windeployqt PromptSnippetManager.exe
+windeployqt PromptManager.exe
 ```
 
 ---
@@ -229,7 +229,7 @@ PromptManager_v2/
     ├── render_icon.py      # Rasterises icon.svg to the PNG/ICO sizes
     ├── resources.qrc       # Qt resource bundle (icons compiled into the binary)
     ├── icons/              # Generated PNGs (16-512px) and app.ico
-    └── promptsnippetmanager.desktop   # Linux desktop entry
+    └── promptmanager.desktop   # Linux desktop entry
 ```
 
 ### Application Icon

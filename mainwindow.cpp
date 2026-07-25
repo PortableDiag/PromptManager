@@ -23,8 +23,27 @@
 #include <QInputDialog>
 #include <QMenuBar>
 #include <QStringConverter>
+#include <QSettings>
+#include <QRandomGenerator>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QSpinBox>
+#include <QCheckBox>
+#include <QFormLayout>
+#include <QGroupBox>
+#include "apiserver.h"
 
 const QString MainWindow::DATA_FILENAME = QDir::homePath() + "/.prompt_snippets_v2.json";
+
+// Generates a random API key of the form "pmk_<32 hex chars>".
+static QString generateApiKey()
+{
+    static const char hex[] = "0123456789abcdef";
+    QString key = "pmk_";
+    for (int i = 0; i < 32; ++i)
+        key += hex[QRandomGenerator::global()->bounded(16)];
+    return key;
+}
 
 // Prompt structure methods
 QJsonObject Prompt::toJson() const {
@@ -96,6 +115,7 @@ MainWindow::MainWindow(QWidget *parent)
     , currentPromptId("")
     , isNewPrompt(false)
     , hasChanges(false)
+    , apiServer(nullptr)
 {
     setupMenuBar();
     setupUI();
@@ -103,6 +123,8 @@ MainWindow::MainWindow(QWidget *parent)
     setupConnections();
     loadPrompts();
     updateUI();
+
+    startApiServerFromSettings();
 
     setWindowTitle("Prompt Manager with Import/Export");
     resize(1000, 700);
@@ -487,6 +509,10 @@ void MainWindow::setupMenuBar()
     connect(deleteAction, &QAction::triggered, this, &MainWindow::deleteItem);
     connect(exportFolderAction, &QAction::triggered, this, &MainWindow::exportCurrentFolder);
     connect(importToFolderAction, &QAction::triggered, this, &MainWindow::importToCurrentFolder);
+
+    QMenu *settingsMenu = menuBar->addMenu("Settings");
+    QAction *apiAction = settingsMenu->addAction("API Server...");
+    connect(apiAction, &QAction::triggered, this, &MainWindow::openApiSettings);
 }
 
 void MainWindow::setupConnections()
@@ -2092,4 +2118,420 @@ void MainWindow::collectTreePromptIds(const QModelIndex &parent, QSet<QString> &
     for (int i = 0; i < folderModel->rowCount(parent); ++i) {
         collectTreePromptIds(folderModel->index(i, 0, parent), promptIds);
     }
+}
+
+// ======================= REST API integration =======================
+
+QModelIndex MainWindow::ensureFolderPath(const QString &folderPath)
+{
+    QModelIndex folderIndex; // invalid == root
+    if (folderPath.isEmpty())
+        return folderIndex;
+
+    const QStringList parts = folderPath.split('/', Qt::SkipEmptyParts);
+    for (const QString &part : parts) {
+        bool found = false;
+        for (int i = 0; i < folderModel->rowCount(folderIndex); ++i) {
+            QModelIndex idx = folderModel->index(i, 0, folderIndex);
+            FolderTreeItem *item = folderModel->getItem(idx);
+            if (item && item->type() == FolderTreeItem::FolderType &&
+                folderModel->data(idx, Qt::DisplayRole).toString() == part) {
+                folderIndex = idx;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            folderModel->insertFolder(folderIndex, part);
+            folderIndex = folderModel->index(folderModel->rowCount(folderIndex) - 1, 0, folderIndex);
+        }
+    }
+    return folderIndex;
+}
+
+void MainWindow::startApiServerFromSettings()
+{
+    QSettings settings;
+    if (!settings.value("api/enabled", false).toBool())
+        return;
+
+    QString key = settings.value("api/key").toString();
+    if (key.isEmpty()) {
+        key = generateApiKey();
+        settings.setValue("api/key", key);
+    }
+    quint16 port = static_cast<quint16>(settings.value("api/port", 8770).toUInt());
+
+    if (!apiServer)
+        apiServer = new ApiServer(this, this);
+
+    QString err;
+    if (apiServer->start(port, key, &err))
+        statusBar()->showMessage(QString("API server listening on http://127.0.0.1:%1").arg(port));
+    else
+        statusBar()->showMessage(QString("API server failed to start: %1").arg(err));
+}
+
+void MainWindow::openApiSettings()
+{
+    QSettings settings;
+    QDialog dialog(this);
+    dialog.setWindowTitle("API Server");
+    dialog.resize(620, 580);
+
+    QVBoxLayout *layout = new QVBoxLayout(&dialog);
+
+    QLabel *intro = new QLabel(
+        "<b>REST API</b><br>"
+        "Let agents and tools read and edit your prompts with full parity to the app "
+        "(create, edit, delete, search). The server listens on <code>127.0.0.1</code> "
+        "(localhost only) and requires the API key below on every request.");
+    intro->setWordWrap(true);
+    layout->addWidget(intro);
+
+    QGroupBox *serverBox = new QGroupBox("Server");
+    QFormLayout *form = new QFormLayout(serverBox);
+    QCheckBox *enabledCheck = new QCheckBox("Enable API server");
+    enabledCheck->setChecked(settings.value("api/enabled", false).toBool());
+    form->addRow(enabledCheck);
+    QSpinBox *portSpin = new QSpinBox;
+    portSpin->setRange(1024, 65535);
+    portSpin->setValue(settings.value("api/port", 8770).toInt());
+    form->addRow("Port:", portSpin);
+    layout->addWidget(serverBox);
+
+    QGroupBox *keyBox = new QGroupBox("API Key");
+    QVBoxLayout *keyLayout = new QVBoxLayout(keyBox);
+    QHBoxLayout *keyRow = new QHBoxLayout;
+    QLineEdit *keyEdit = new QLineEdit(settings.value("api/key").toString());
+    keyEdit->setReadOnly(true);
+    QPushButton *genButton = new QPushButton("Generate");
+    QPushButton *copyKeyButton = new QPushButton("Copy");
+    keyRow->addWidget(keyEdit);
+    keyRow->addWidget(genButton);
+    keyRow->addWidget(copyKeyButton);
+    keyLayout->addLayout(keyRow);
+    layout->addWidget(keyBox);
+
+    QGroupBox *detailBox = new QGroupBox("Details && Example");
+    QVBoxLayout *detailLayout = new QVBoxLayout(detailBox);
+    QPlainTextEdit *details = new QPlainTextEdit;
+    details->setReadOnly(true);
+    QFont mono("monospace");
+    mono.setStyleHint(QFont::Monospace);
+    details->setFont(mono);
+    detailLayout->addWidget(details);
+    layout->addWidget(detailBox, 1);
+
+    auto refreshDetails = [&]() {
+        if (keyEdit->text().isEmpty())
+            keyEdit->setText(generateApiKey());
+        const QString key = keyEdit->text();
+        const int port = portSpin->value();
+        const QString base = QString("http://127.0.0.1:%1/api").arg(port);
+        QString text;
+        text += QString("Base URL:  %1\n").arg(base);
+        text += QString("Auth:      Authorization: Bearer %1\n").arg(key);
+        text += QString("           (or  X-API-Key: %1)\n\n").arg(key);
+        text += "Full API reference: see API.md (shipped with the app)\n\n";
+        text += "Examples\n--------\n";
+        text += "# List / search prompts\n";
+        text += QString("curl -H \"Authorization: Bearer %1\" \\\n     \"%2/prompts?q=email\"\n\n").arg(key, base);
+        text += "# Create a prompt\n";
+        text += QString("curl -X POST -H \"Authorization: Bearer %1\" \\\n"
+                        "     -H \"Content-Type: application/json\" \\\n"
+                        "     -d '{\"title\":\"Greeting\",\"body\":\"Hello!\",\"folderPath\":\"General\"}' \\\n"
+                        "     %2/prompts\n\n").arg(key, base);
+        text += "# Update a prompt\n";
+        text += QString("curl -X PUT -H \"Authorization: Bearer %1\" \\\n"
+                        "     -H \"Content-Type: application/json\" \\\n"
+                        "     -d '{\"body\":\"Updated text\"}' \\\n"
+                        "     %2/prompts/<id>\n\n").arg(key, base);
+        text += "# Delete a prompt\n";
+        text += QString("curl -X DELETE -H \"Authorization: Bearer %1\" \\\n     %2/prompts/<id>\n").arg(key, base);
+        details->setPlainText(text);
+    };
+    refreshDetails();
+
+    connect(genButton, &QPushButton::clicked, &dialog, [&]() { keyEdit->setText(generateApiKey()); refreshDetails(); });
+    connect(copyKeyButton, &QPushButton::clicked, &dialog, [&]() { QApplication::clipboard()->setText(keyEdit->text()); });
+    connect(portSpin, QOverload<int>::of(&QSpinBox::valueChanged), &dialog, [&](int) { refreshDetails(); });
+
+    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel);
+    layout->addWidget(buttons);
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
+    if (dialog.exec() != QDialog::Accepted)
+        return;
+
+    QString key = keyEdit->text();
+    if (key.isEmpty())
+        key = generateApiKey();
+    settings.setValue("api/enabled", enabledCheck->isChecked());
+    settings.setValue("api/port", portSpin->value());
+    settings.setValue("api/key", key);
+
+    if (!apiServer)
+        apiServer = new ApiServer(this, this);
+
+    if (enabledCheck->isChecked()) {
+        QString err;
+        if (apiServer->start(static_cast<quint16>(portSpin->value()), key, &err))
+            statusBar()->showMessage(QString("API server listening on http://127.0.0.1:%1").arg(portSpin->value()));
+        else
+            QMessageBox::warning(this, "API Server",
+                QString("Could not start server on port %1:\n%2").arg(portSpin->value()).arg(err));
+    } else {
+        apiServer->stop();
+        statusBar()->showMessage("API server stopped");
+    }
+}
+
+ApiResponse MainWindow::apiListPrompts(const QString &folder, const QString &query)
+{
+    QJsonArray arr;
+    const QString q = query.trimmed();
+    for (const Prompt &p : prompts) {
+        if (!folder.isEmpty() && p.folderPath != folder)
+            continue;
+        if (!q.isEmpty() &&
+            !p.title.contains(q, Qt::CaseInsensitive) &&
+            !p.body.contains(q, Qt::CaseInsensitive) &&
+            !p.folderPath.contains(q, Qt::CaseInsensitive))
+            continue;
+        arr.append(p.toJson());
+    }
+    QJsonObject b;
+    b["prompts"] = arr;
+    b["count"] = arr.size();
+    return ApiResponse::ok(b);
+}
+
+ApiResponse MainWindow::apiGetPrompt(const QString &id)
+{
+    int idx = findPromptIndex(id);
+    if (idx < 0)
+        return ApiResponse::error(404, "Prompt not found");
+    return ApiResponse::ok(prompts[idx].toJson());
+}
+
+ApiResponse MainWindow::apiCreatePrompt(const QJsonObject &input)
+{
+    const QString title = input.value("title").toString().trimmed();
+    if (title.isEmpty())
+        return ApiResponse::error(400, "Field 'title' is required");
+
+    Prompt p;
+    p.id = generateId();
+    p.title = title;
+    p.body = input.value("body").toString();
+    QString folderPath = input.value("folderPath").toString().trimmed();
+    if (folderPath.isEmpty())
+        folderPath = "General";
+    p.folderPath = folderPath;
+    p.created = QDateTime::currentDateTime();
+    p.modified = p.created;
+
+    prompts.append(p);
+    QModelIndex folderIndex = ensureFolderPath(folderPath);
+    folderModel->insertPrompt(folderIndex, p.title, p.id);
+
+    savePrompts();
+    updatePromptList();
+    updateUI();
+
+    return ApiResponse::created(p.toJson());
+}
+
+ApiResponse MainWindow::apiUpdatePrompt(const QString &id, const QJsonObject &input)
+{
+    int idx = findPromptIndex(id);
+    if (idx < 0)
+        return ApiResponse::error(404, "Prompt not found");
+
+    Prompt &p = prompts[idx];
+    bool folderChanged = false;
+
+    if (input.contains("title")) {
+        const QString t = input.value("title").toString().trimmed();
+        if (t.isEmpty())
+            return ApiResponse::error(400, "Field 'title' cannot be empty");
+        p.title = t;
+    }
+    if (input.contains("body"))
+        p.body = input.value("body").toString();
+    if (input.contains("folderPath")) {
+        QString f = input.value("folderPath").toString().trimmed();
+        if (f.isEmpty())
+            f = "General";
+        if (f != p.folderPath) {
+            p.folderPath = f;
+            folderChanged = true;
+        }
+    }
+    p.modified = QDateTime::currentDateTime();
+
+    // Reflect changes in the tree: move the node when the folder changed,
+    // otherwise just update its displayed title.
+    QModelIndex node = folderModel->findItemById(id);
+    if (folderChanged) {
+        if (node.isValid())
+            folderModel->removeItem(node);
+        QModelIndex folderIndex = ensureFolderPath(p.folderPath);
+        folderModel->insertPrompt(folderIndex, p.title, id);
+    } else if (node.isValid()) {
+        folderModel->setData(node, p.title, Qt::EditRole);
+    }
+
+    // Keep the editor in sync if this prompt is open and has no pending edits.
+    if (currentPromptId == id && !hasChanges) {
+        QSignalBlocker titleBlocker(titleEdit);
+        QSignalBlocker bodyBlocker(bodyEdit);
+        titleEdit->setText(p.title);
+        bodyEdit->setPlainText(p.body);
+        originalPrompt = p;
+    }
+
+    savePrompts();
+    updatePromptList();
+    updateUI();
+
+    return ApiResponse::ok(p.toJson());
+}
+
+ApiResponse MainWindow::apiDeletePrompt(const QString &id)
+{
+    int idx = findPromptIndex(id);
+    if (idx < 0)
+        return ApiResponse::error(404, "Prompt not found");
+
+    prompts.removeAt(idx);
+
+    QModelIndex node = folderModel->findItemById(id);
+    if (node.isValid())
+        folderModel->removeItem(node);
+
+    // Clear the editor if the deleted prompt was open.
+    if (currentPromptId == id) {
+        currentPromptId.clear();
+        QSignalBlocker titleBlocker(titleEdit);
+        QSignalBlocker bodyBlocker(bodyEdit);
+        titleEdit->clear();
+        bodyEdit->clear();
+        hasChanges = false;
+    }
+
+    savePrompts();
+    updatePromptList();
+    updateUI();
+
+    QJsonObject b;
+    b["deleted"] = id;
+    return ApiResponse::ok(b);
+}
+
+static void collectFolderPaths(FolderTreeModel *model, const QModelIndex &parent,
+                               const QString &prefix, QJsonArray &out)
+{
+    for (int i = 0; i < model->rowCount(parent); ++i) {
+        QModelIndex idx = model->index(i, 0, parent);
+        FolderTreeItem *item = model->getItem(idx);
+        if (!item || item->type() != FolderTreeItem::FolderType)
+            continue;
+        const QString name = item->data(0).toString();
+        const QString path = prefix.isEmpty() ? name : prefix + "/" + name;
+        QJsonObject o;
+        o["path"] = path;
+        o["name"] = name;
+        out.append(o);
+        collectFolderPaths(model, idx, path, out);
+    }
+}
+
+ApiResponse MainWindow::apiListFolders()
+{
+    QJsonArray arr;
+    collectFolderPaths(folderModel, QModelIndex(), QString(), arr);
+    QJsonObject b;
+    b["folders"] = arr;
+    b["count"] = arr.size();
+    return ApiResponse::ok(b);
+}
+
+ApiResponse MainWindow::apiCreateFolder(const QJsonObject &input)
+{
+    const QString path = input.value("path").toString().trimmed();
+    if (path.isEmpty())
+        return ApiResponse::error(400, "Field 'path' is required");
+
+    ensureFolderPath(path);
+    folderTreeView->expandAll();
+    updateUI();
+
+    QJsonObject b;
+    b["path"] = path;
+    b["note"] = "Empty folders persist across restarts only once they contain a prompt.";
+    return ApiResponse::created(b);
+}
+
+ApiResponse MainWindow::apiDeleteFolder(const QString &path)
+{
+    const QString target = path.trimmed();
+    if (target.isEmpty())
+        return ApiResponse::error(400, "Query parameter 'path' is required");
+
+    // Walk to the folder node without creating anything.
+    QModelIndex folderIndex; // root
+    const QStringList parts = target.split('/', Qt::SkipEmptyParts);
+    for (const QString &part : parts) {
+        bool found = false;
+        for (int i = 0; i < folderModel->rowCount(folderIndex); ++i) {
+            QModelIndex idx = folderModel->index(i, 0, folderIndex);
+            FolderTreeItem *item = folderModel->getItem(idx);
+            if (item && item->type() == FolderTreeItem::FolderType &&
+                folderModel->data(idx, Qt::DisplayRole).toString() == part) {
+                folderIndex = idx;
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+            return ApiResponse::error(404, "Folder not found");
+    }
+    if (!folderIndex.isValid())
+        return ApiResponse::error(400, "Cannot delete the root");
+
+    FolderTreeItem *folder = folderModel->getItem(folderIndex);
+    if (!folder || folder->type() != FolderTreeItem::FolderType)
+        return ApiResponse::error(404, "Folder not found");
+
+    // Remove all prompts contained (recursively) from the data store first.
+    const QVector<FolderTreeItem *> contained = folder->getAllPrompts();
+    int removed = 0;
+    for (FolderTreeItem *pItem : contained) {
+        int i = findPromptIndex(pItem->id());
+        if (i >= 0) {
+            prompts.removeAt(i);
+            ++removed;
+        }
+        if (currentPromptId == pItem->id()) {
+            currentPromptId.clear();
+            QSignalBlocker titleBlocker(titleEdit);
+            QSignalBlocker bodyBlocker(bodyEdit);
+            titleEdit->clear();
+            bodyEdit->clear();
+            hasChanges = false;
+        }
+    }
+    folderModel->removeItem(folderIndex);
+
+    savePrompts();
+    updatePromptList();
+    updateUI();
+
+    QJsonObject b;
+    b["deleted"] = target;
+    b["promptsRemoved"] = removed;
+    return ApiResponse::ok(b);
 }

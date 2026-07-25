@@ -7,6 +7,7 @@
 #include <QDateTime>
 #include <QJsonObject>
 #include "foldertreemodel.h"
+#include "apiserver.h"
 
 class QTreeView;
 class QLineEdit;
@@ -42,6 +43,17 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    // REST API backend. Each method runs on the GUI thread (invoked by
+    // ApiServer via the shared event loop) and returns an HTTP-style result.
+    ApiResponse apiListPrompts(const QString &folder, const QString &query);
+    ApiResponse apiGetPrompt(const QString &id);
+    ApiResponse apiCreatePrompt(const QJsonObject &input);
+    ApiResponse apiUpdatePrompt(const QString &id, const QJsonObject &input);
+    ApiResponse apiDeletePrompt(const QString &id);
+    ApiResponse apiListFolders();
+    ApiResponse apiCreateFolder(const QJsonObject &input);
+    ApiResponse apiDeleteFolder(const QString &path);
+
 protected:
     void closeEvent(QCloseEvent *event) override;
 
@@ -72,6 +84,8 @@ private slots:
     void updateUI();
     void markUnsavedChanges();
 
+    void openApiSettings();
+
 private:
     void diagnosticTraverseTree(const QModelIndex &parent, const QString &indent, QStringList &output);
     void collectTreePromptIds(const QModelIndex &parent, QSet<QString> &promptIds);
@@ -92,6 +106,13 @@ private:
     void selectPromptById(const QString &id);
     QString getCurrentFolderPath() const;
     QModelIndex getCurrentFolderIndex() const;
+
+    // Walks (creating as needed) the folders named by a "A/B/C" path and
+    // returns the source-model index of the deepest folder (root for "").
+    QModelIndex ensureFolderPath(const QString &folderPath);
+
+    // API server lifecycle (reads key/port/enabled from QSettings).
+    void startApiServerFromSettings();
 
     void updatePromptList();
     void filterPrompts();
@@ -142,6 +163,9 @@ private:
     Prompt originalPrompt;
     bool isNewPrompt;
     bool hasChanges;
+
+    // REST API server (optional, off by default)
+    ApiServer *apiServer;
 
     // Constants
     static const QString DATA_FILENAME;

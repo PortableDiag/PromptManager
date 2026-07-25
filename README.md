@@ -11,6 +11,10 @@ A Qt6-based desktop application for organizing and managing text prompts/snippet
 - **Import/Export**: Support for JSON and CSV formats
 - **Auto-Save**: Changes are automatically persisted
 - **Keyboard Shortcuts**: Efficient workflow with keyboard shortcuts
+- **REST API**: Let agents and tools manage prompts with full parity to the app —
+  create, edit, delete, and search over a local HTTP API. Enable it in
+  **Settings → API Server…** (configurable port, generated API key, live `curl`
+  example). See [API.md](API.md) for the full reference.
 
 ### Data Management
 - **Atomic Saves**: Safe file writing with automatic backups

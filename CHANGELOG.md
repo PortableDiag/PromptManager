@@ -5,6 +5,16 @@ All notable changes to PromptManager will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-07-25
+
+### Added
+- Right-click context menu on the folder tree for copying the exact identifiers
+  the REST API uses: **Copy Folder Path** on a folder (e.g. `Work/Email`), and
+  **Copy Prompt ID** (the UUID for `/api/prompts/{id}`) plus **Copy Folder Path**
+  on a prompt. Copies go to both the system clipboard and the X11 primary
+  selection, so you can hand agents precise paths and ids
+- **Help → About** dialog showing the application name and version
+
 ## [2.2.0] - 2026-07-24
 
 ### Added

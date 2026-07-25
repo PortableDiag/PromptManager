@@ -85,6 +85,10 @@ private slots:
     void markUnsavedChanges();
 
     void openApiSettings();
+    void showAbout();
+
+    // Right-click menu on the folder tree: copy a node's API path / id.
+    void showFolderTreeContextMenu(const QPoint &pos);
 
 private:
     void diagnosticTraverseTree(const QModelIndex &parent, const QString &indent, QStringList &output);
@@ -106,6 +110,12 @@ private:
     void selectPromptById(const QString &id);
     QString getCurrentFolderPath() const;
     QModelIndex getCurrentFolderIndex() const;
+
+    // Folder path (A/B/C) for an arbitrary proxy index: the folder's own path,
+    // or the containing folder's path when the index points at a prompt.
+    QString folderPathForIndex(const QModelIndex &proxyIndex) const;
+    // Copy to both the system clipboard and the X11 primary selection.
+    void copyTextToClipboard(const QString &text, const QString &statusLabel);
 
     // Walks (creating as needed) the folders named by a "A/B/C" path and
     // returns the source-model index of the deepest folder (root for "").

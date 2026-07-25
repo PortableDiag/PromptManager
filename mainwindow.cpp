@@ -218,6 +218,9 @@ void MainWindow::setupUI()
     folderTreeView->setHeaderHidden(true);
     folderTreeView->setDragDropMode(QAbstractItemView::InternalMove);
     folderTreeView->setSelectionMode(QAbstractItemView::SingleSelection);
+    folderTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(folderTreeView, &QWidget::customContextMenuRequested,
+            this, &MainWindow::showFolderTreeContextMenu);
     folderLayout->addWidget(folderTreeView);
     
     // Connect drag-drop signal
@@ -513,6 +516,25 @@ void MainWindow::setupMenuBar()
     QMenu *settingsMenu = menuBar->addMenu("Settings");
     QAction *apiAction = settingsMenu->addAction("API Server...");
     connect(apiAction, &QAction::triggered, this, &MainWindow::openApiSettings);
+
+    QMenu *helpMenu = menuBar->addMenu("Help");
+    QAction *aboutAction = helpMenu->addAction("About Prompt Manager");
+    connect(aboutAction, &QAction::triggered, this, &MainWindow::showAbout);
+}
+
+void MainWindow::showAbout()
+{
+    const QString version = QApplication::applicationVersion();
+    QMessageBox about(this);
+    about.setWindowTitle("About Prompt Manager");
+    about.setIconPixmap(windowIcon().pixmap(64, 64));
+    about.setTextFormat(Qt::RichText);
+    about.setText(QString("<b>Prompt Manager</b><br>Version %1").arg(version));
+    about.setInformativeText(
+        "Organize and manage reusable text prompts in a hierarchical folder "
+        "structure, with a local REST API for agents and tools.");
+    about.setStandardButtons(QMessageBox::Ok);
+    about.exec();
 }
 
 void MainWindow::setupConnections()
@@ -829,7 +851,12 @@ void MainWindow::selectPromptById(const QString &id)
 
 QString MainWindow::getCurrentFolderPath() const
 {
-    QModelIndex currentIndex = folderTreeView->currentIndex();
+    return folderPathForIndex(folderTreeView->currentIndex());
+}
+
+QString MainWindow::folderPathForIndex(const QModelIndex &proxyIndex) const
+{
+    QModelIndex currentIndex = proxyIndex;
     if (!currentIndex.isValid()) {
         return QString();
     }
@@ -1915,15 +1942,57 @@ void MainWindow::copyToClipboard()
     if (currentPromptId.isEmpty()) {
         return;
     }
+    copyTextToClipboard(bodyEdit->toPlainText(), "Copied to clipboard");
+}
 
+void MainWindow::copyTextToClipboard(const QString &text, const QString &statusLabel)
+{
     QClipboard *clipboard = QApplication::clipboard();
-    const QString text = bodyEdit->toPlainText();
     clipboard->setText(text, QClipboard::Clipboard);
     if (clipboard->supportsSelection()) {
         clipboard->setText(text, QClipboard::Selection);
     }
+    statusBar()->showMessage(statusLabel);
+}
 
-    statusBar()->showMessage("Copied to clipboard");
+void MainWindow::showFolderTreeContextMenu(const QPoint &pos)
+{
+    const QModelIndex proxyIndex = folderTreeView->indexAt(pos);
+    if (!proxyIndex.isValid()) {
+        return;
+    }
+
+    const QModelIndex sourceIndex = folderProxyModel->mapToSource(proxyIndex);
+    FolderTreeItem *item = sourceIndex.isValid()
+        ? static_cast<FolderTreeItem*>(sourceIndex.internalPointer())
+        : nullptr;
+    if (!item) {
+        return;
+    }
+
+    const QString folderPath = folderPathForIndex(proxyIndex);
+    QMenu menu(this);
+
+    if (item->type() == FolderTreeItem::PromptType) {
+        // Prompts are addressed by id over the API; the path is its folder.
+        const QString promptId = item->id();
+        QAction *copyId = menu.addAction("Copy Prompt ID");
+        connect(copyId, &QAction::triggered, this, [this, promptId]() {
+            copyTextToClipboard(promptId, "Copied prompt ID");
+        });
+        QAction *copyPath = menu.addAction("Copy Folder Path");
+        connect(copyPath, &QAction::triggered, this, [this, folderPath]() {
+            copyTextToClipboard(folderPath, "Copied folder path");
+        });
+    } else {
+        // Folders are addressed by their path (A/B/C) over the API.
+        QAction *copyPath = menu.addAction("Copy Folder Path");
+        connect(copyPath, &QAction::triggered, this, [this, folderPath]() {
+            copyTextToClipboard(folderPath, "Copied folder path");
+        });
+    }
+
+    menu.exec(folderTreeView->viewport()->mapToGlobal(pos));
 }
 
 void MainWindow::updateUI()

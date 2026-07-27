@@ -5,6 +5,13 @@ All notable changes to PromptManager will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.1] - 2026-07-27
+
+### Fixed
+- **Copy Folder Path** on a prompt now includes the prompt's own title
+  (e.g. `Work/Email/Invoice reminder`), pointing at the prompt itself instead of
+  just its containing folder
+
 ## [2.3.0] - 2026-07-25
 
 ### Added

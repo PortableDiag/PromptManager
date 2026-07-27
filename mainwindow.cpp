@@ -1980,9 +1980,15 @@ void MainWindow::showFolderTreeContextMenu(const QPoint &pos)
         connect(copyId, &QAction::triggered, this, [this, promptId]() {
             copyTextToClipboard(promptId, "Copied prompt ID");
         });
+        // Include the prompt's own title so the path points at the prompt,
+        // e.g. Work/Email/Invoice reminder (folderPath alone is its folder).
+        const QString promptTitle = item->data(0).toString();
+        const QString fullPath = folderPath.isEmpty()
+            ? promptTitle
+            : folderPath + '/' + promptTitle;
         QAction *copyPath = menu.addAction("Copy Folder Path");
-        connect(copyPath, &QAction::triggered, this, [this, folderPath]() {
-            copyTextToClipboard(folderPath, "Copied folder path");
+        connect(copyPath, &QAction::triggered, this, [this, fullPath]() {
+            copyTextToClipboard(fullPath, "Copied folder path");
         });
     } else {
         // Folders are addressed by their path (A/B/C) over the API.

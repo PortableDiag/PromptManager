@@ -5,6 +5,18 @@ All notable changes to PromptManager will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] - 2026-07-27
+
+### Added
+- **Folder search** — a search box above the Folders tree that matches both
+  folder names and prompt titles, keeping the path to each match visible (and a
+  matched folder's contents). Independent of the existing prompt-list search
+- **Folder auto-sort** — sort the Folders tree by **Name A–Z / Z–A** or
+  **Newest / Oldest** (a folder's recency is the most recently modified prompt
+  inside it). Sorting applies to folders only; prompts keep their manual
+  drag-and-drop order. Choice persists across restarts. A **Manual** option
+  restores drag order
+
 ## [2.3.1] - 2026-07-27
 
 ### Fixed

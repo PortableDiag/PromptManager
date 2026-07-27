@@ -181,7 +181,7 @@ ApiResponse ApiServer::route(const QString &method, const QString &path,
         QJsonObject b;
         b["status"] = "ok";
         b["service"] = "prompt-manager";
-        b["version"] = "2.3.1";
+        b["version"] = "2.4.0";
         return ApiResponse::ok(b);
     }
 

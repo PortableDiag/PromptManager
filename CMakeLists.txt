@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(PromptManager VERSION 2.3.1 LANGUAGES CXX)
+project(PromptManager VERSION 2.4.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -13,6 +13,7 @@ set(SOURCES
     main.cpp
     mainwindow.cpp
     foldertreemodel.cpp
+    foldersortfilterproxymodel.cpp
     apiserver.cpp
 )
 
@@ -24,6 +25,7 @@ set(HEADERS
     mainwindow.h
     foldertreeitem.h
     foldertreemodel.h
+    foldersortfilterproxymodel.h
     apiserver.h
 )
 

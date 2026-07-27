@@ -7,6 +7,7 @@
 #include <QDateTime>
 #include <QJsonObject>
 #include "foldertreemodel.h"
+#include "foldersortfilterproxymodel.h"
 #include "apiserver.h"
 
 class QTreeView;
@@ -62,6 +63,8 @@ private slots:
     void onPromptItemSelected(const QModelIndex &current);
     void onSearchTextChanged(const QString &text);
     void onSortOrderChanged(int index);
+    void onFolderSearchChanged(const QString &text);
+    void onFolderSortChanged(int index);
 
     void onTitleChanged(const QString &text);
     void onBodyChanged();
@@ -127,6 +130,9 @@ private:
     void updatePromptList();
     void filterPrompts();
 
+    // Refresh the id->modified map the folder tree uses for Newest/Oldest sort.
+    void refreshFolderSortTimes();
+
     // Folder deletion helpers
     void countItemsInFolder(FolderTreeItem *folder, int &promptCount, int &folderCount);
     void deleteFolderAndContents(FolderTreeItem *folder);
@@ -149,6 +155,8 @@ private:
     QTreeView *promptListView;
     QLineEdit *searchEdit;
     QComboBox *sortCombo;
+    QLineEdit *folderSearchEdit;
+    QComboBox *folderSortCombo;
     QLineEdit *titleEdit;
     QPlainTextEdit *bodyEdit;
     QPushButton *saveButton;
@@ -164,7 +172,7 @@ private:
     // Models
     FolderTreeModel *folderModel;
     QStandardItemModel *promptListModel;
-    QSortFilterProxyModel *folderProxyModel;
+    FolderSortFilterProxyModel *folderProxyModel;
     QSortFilterProxyModel *promptProxyModel;
 
     // Data

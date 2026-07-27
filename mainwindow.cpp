@@ -124,6 +124,12 @@ MainWindow::MainWindow(QWidget *parent)
     loadPrompts();
     updateUI();
 
+    // Restore the last folder sort mode (triggers the sort via the combo signal).
+    QSettings sortSettings;
+    int savedFolderSort = sortSettings.value("ui/folderSortMode", 0).toInt();
+    if (savedFolderSort > 0 && savedFolderSort < folderSortCombo->count())
+        folderSortCombo->setCurrentIndex(savedFolderSort);
+
     startApiServerFromSettings();
 
     setWindowTitle("Prompt Manager with Import/Export");
@@ -210,8 +216,29 @@ void MainWindow::setupUI()
     folderLayout->addLayout(folderHeaderLayout);
 
     folderModel = new FolderTreeModel(this);
-    folderProxyModel = new QSortFilterProxyModel(this);
+    folderProxyModel = new FolderSortFilterProxyModel(this);
     folderProxyModel->setSourceModel(folderModel);
+
+    // Folder search + auto-sort. Search matches folder names and prompt
+    // titles; the sort reorders folders only (prompts stay drag-orderable).
+    QHBoxLayout *folderToolsLayout = new QHBoxLayout;
+    folderToolsLayout->setContentsMargins(0, 0, 0, 4);
+
+    folderSearchEdit = new QLineEdit;
+    folderSearchEdit->setPlaceholderText("Search folders & prompts...");
+    folderSearchEdit->setClearButtonEnabled(true);
+
+    folderSortCombo = new QComboBox;
+    folderSortCombo->setToolTip("Sort folders (prompts keep their manual order)");
+    folderSortCombo->addItem("Manual");
+    folderSortCombo->addItem("Name A-Z");
+    folderSortCombo->addItem("Name Z-A");
+    folderSortCombo->addItem("Newest");
+    folderSortCombo->addItem("Oldest");
+
+    folderToolsLayout->addWidget(folderSearchEdit, 1);
+    folderToolsLayout->addWidget(folderSortCombo);
+    folderLayout->addLayout(folderToolsLayout);
 
     folderTreeView = new QTreeView;
     folderTreeView->setModel(folderProxyModel);
@@ -548,6 +575,10 @@ void MainWindow::setupConnections()
             this, &MainWindow::onSearchTextChanged);
     connect(sortCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &MainWindow::onSortOrderChanged);
+    connect(folderSearchEdit, &QLineEdit::textChanged,
+            this, &MainWindow::onFolderSearchChanged);
+    connect(folderSortCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, &MainWindow::onFolderSortChanged);
 
     connect(titleEdit, &QLineEdit::textChanged,
             this, &MainWindow::onTitleChanged);
@@ -707,7 +738,8 @@ void MainWindow::loadPrompts()
     } else {
         statusBar()->showMessage(QString("Loaded %1 prompts").arg(prompts.size()));
     }
-    
+
+    refreshFolderSortTimes();
     folderTreeView->expandAll();
 }
 
@@ -797,6 +829,9 @@ void MainWindow::savePrompts()
     }
 
     statusBar()->showMessage("Prompts saved");
+
+    // Keep the folder Newest/Oldest sort in step with updated modified times.
+    refreshFolderSortTimes();
 }
 
 bool MainWindow::hasUnsavedChanges() const
@@ -1606,6 +1641,32 @@ void MainWindow::onSortOrderChanged(int index)
 {
     bool ascending = (index == 0 || index == 2); // A-Z or Newest First
     promptProxyModel->sort(0, ascending ? Qt::AscendingOrder : Qt::DescendingOrder);
+}
+
+void MainWindow::onFolderSearchChanged(const QString &text)
+{
+    folderProxyModel->setFilterText(text);
+    // Expand so matches deeper in the tree are visible while searching.
+    if (!text.trimmed().isEmpty())
+        folderTreeView->expandAll();
+}
+
+void MainWindow::onFolderSortChanged(int index)
+{
+    refreshFolderSortTimes(); // ensure Newest/Oldest reflects current data
+    folderProxyModel->setSortMode(
+        static_cast<FolderSortFilterProxyModel::SortMode>(index));
+    QSettings settings;
+    settings.setValue("ui/folderSortMode", index);
+}
+
+void MainWindow::refreshFolderSortTimes()
+{
+    QHash<QString, QDateTime> times;
+    times.reserve(prompts.size());
+    for (const Prompt &p : prompts)
+        times.insert(p.id, p.modified);
+    folderProxyModel->setPromptTimes(times);
 }
 
 void MainWindow::onTitleChanged(const QString &text)

@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 
     app.setApplicationName("Prompt Manager");
     app.setOrganizationName("PromptManager");
-    app.setApplicationVersion("2.4.0");
+    app.setApplicationVersion("2.4.1");
     app.setDesktopFileName("promptmanager");
     app.setWindowIcon(applicationIcon());
 

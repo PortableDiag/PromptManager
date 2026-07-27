@@ -2047,9 +2047,9 @@ void MainWindow::showFolderTreeContextMenu(const QPoint &pos)
         const QString fullPath = folderPath.isEmpty()
             ? promptTitle
             : folderPath + '/' + promptTitle;
-        QAction *copyPath = menu.addAction("Copy Folder Path");
+        QAction *copyPath = menu.addAction("Copy Prompt Path");
         connect(copyPath, &QAction::triggered, this, [this, fullPath]() {
-            copyTextToClipboard(fullPath, "Copied folder path");
+            copyTextToClipboard(fullPath, "Copied prompt path");
         });
     } else {
         // Folders are addressed by their path (A/B/C) over the API.

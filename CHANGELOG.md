@@ -5,6 +5,14 @@ All notable changes to PromptManager will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.1] - 2026-07-27
+
+### Changed
+- Renamed the folder-tree context-menu action on a **prompt** from
+  "Copy Folder Path" to **"Copy Prompt Path"** (it copies the full path
+  including the prompt's own name). On a **folder** it remains
+  "Copy Folder Path"
+
 ## [2.4.0] - 2026-07-27
 
 ### Added

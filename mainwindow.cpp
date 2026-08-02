@@ -483,6 +483,11 @@ void MainWindow::setupMenuBar()
 
     QAction *newFolderAction = fileMenu->addAction("New Folder");
 
+    QAction *newProjectAction = fileMenu->addAction("New Project...");
+    connect(newProjectAction, &QAction::triggered, this, [this]() {
+        showNewProjectDialog("Prompts");
+    });
+
     fileMenu->addSeparator();
 
     QAction *importAction = fileMenu->addAction("Import...");
@@ -2057,6 +2062,13 @@ void MainWindow::showFolderTreeContextMenu(const QPoint &pos)
         connect(copyPath, &QAction::triggered, this, [this, folderPath]() {
             copyTextToClipboard(folderPath, "Copied folder path");
         });
+
+        // Scaffold a Refresher + EOD Summary pair into a new sub-project here.
+        menu.addSeparator();
+        QAction *newProject = menu.addAction("New Project Here...");
+        connect(newProject, &QAction::triggered, this, [this, folderPath]() {
+            showNewProjectDialog(folderPath);
+        });
     }
 
     menu.exec(folderTreeView->viewport()->mapToGlobal(pos));
@@ -2306,6 +2318,218 @@ void MainWindow::startApiServerFromSettings()
         statusBar()->showMessage(QString("API server listening on http://127.0.0.1:%1").arg(port));
     else
         statusBar()->showMessage(QString("API server failed to start: %1").arg(err));
+}
+
+// ---- New Project scaffolding -------------------------------------------------
+
+namespace {
+
+// Report slug: lowercase, internal whitespace collapsed to single hyphens.
+// "WifiScanner" -> "wifiscanner", "BT Scanner" -> "bt-scanner".
+QString projectSlug(const QString &name)
+{
+    return name.simplified().toLower().replace(' ', '-');
+}
+
+// Human labels for the type combo. The index maps to the templates below.
+QStringList projectTypeLabels()
+{
+    return { "Android app", "Python project", "Rust project",
+             "Node.js project", "C++ / CMake project", "Generic project" };
+}
+
+// Build the Refresher + EOD Summary bodies for a project, faithful to the
+// hand-written pairs already in the store (only the type-specific "get up to
+// speed" bullet, the descriptor, and the slug differ).
+QPair<QString, QString> projectTemplateBodies(const QString &name,
+                                              int typeIndex)
+{
+    const QString slug = projectSlug(name);
+
+    // Per-type pieces: descriptor, git/README bullet, build/skim bullet, and
+    // whether the closing line says "app" or "project".
+    QString descriptor, gitBullet, buildBullet, subject;
+    switch (typeIndex) {
+    case 0: // Android
+        descriptor  = "an Android app";
+        gitBullet   = "- Read the recent git history (`git log --oneline -20`), the README, and CHANGELOG.md.";
+        buildBullet = "- Skim the project layout and the main source under app/src/main.";
+        subject     = "app";
+        break;
+    case 1: // Python
+        descriptor  = "a Python project";
+        gitBullet   = "- Read the recent git history (`git log --oneline -20`), the README, and CHANGELOG.md if present.";
+        buildBullet = "- Check requirements.txt / pyproject.toml and run per the README; skim the main module.";
+        subject     = "project";
+        break;
+    case 2: // Rust
+        descriptor  = "a Rust project";
+        gitBullet   = "- Read the recent git history (`git log --oneline -20`), the README, and CHANGELOG.md if present.";
+        buildBullet = "- Build and run with `cargo build` / `cargo run`; skim src/.";
+        subject     = "project";
+        break;
+    case 3: // Node.js
+        descriptor  = "a Node.js project";
+        gitBullet   = "- Read the recent git history (`git log --oneline -20`), the README, and CHANGELOG.md if present.";
+        buildBullet = "- Install deps and run per package.json scripts; skim src/.";
+        subject     = "project";
+        break;
+    case 4: // C++ / CMake
+        descriptor  = "a C++ project";
+        gitBullet   = "- Read the recent git history (`git log --oneline -20`), the README, and CHANGELOG.md if present.";
+        buildBullet = "- Configure and build with CMake (`cmake -B build && cmake --build build`); skim the main sources.";
+        subject     = "project";
+        break;
+    default: // Generic
+        descriptor  = "a software project";
+        gitBullet   = "- Read the recent git history (`git log --oneline -20`), the README, and CHANGELOG.md if present.";
+        buildBullet = "- Skim the project layout, build and run per the README, and read the main sources.";
+        subject     = "project";
+        break;
+    }
+
+    const QString refresher = QString(
+        "This is %1, %2. Get fully up to speed before we start, but change nothing yet:\n\n"
+        "%3\n"
+        "- Review prior session reports in /media/veracrypt1/AICodeLogs/ (files named %4-SESSION-*.md) for where we left off.\n"
+        "%5\n\n"
+        "Then give me a concise summary of the %6 and its current state and confirm you're ready.")
+        .arg(name, descriptor, gitBullet, slug, buildBullet, subject);
+
+    const QString eod = QString(
+        "Create a code session report capturing everything we did this session that worked — detailed and thorough enough to serve as pickup context in a future session. Include files changed/added, features, and the important technical details and decisions.\n\n"
+        "Write the report to /media/veracrypt1/AICodeLogs/ as %1-SESSION-YYYY-MM-DD.md — NOT inside the repo (this repo is public).\n\n"
+        "Then update the README and CHANGELOG, bump the version and tag/release if we shipped, and commit and push. Never put your name or any AI attribution on commits, tags, releases, or the report.")
+        .arg(slug);
+
+    return { refresher, eod };
+}
+
+} // namespace
+
+void MainWindow::showNewProjectDialog(const QString &presetParentFolder)
+{
+    QDialog dlg(this);
+    dlg.setWindowTitle("New Project");
+    dlg.setModal(true);
+    dlg.setMinimumWidth(440);
+
+    QLineEdit *nameEdit = new QLineEdit(&dlg);
+    nameEdit->setPlaceholderText("e.g. WifiScanner");
+
+    QComboBox *typeCombo = new QComboBox(&dlg);
+    typeCombo->addItems(projectTypeLabels());
+
+    QLineEdit *parentEdit = new QLineEdit(
+        presetParentFolder.isEmpty() ? QStringLiteral("Prompts") : presetParentFolder, &dlg);
+
+    QLabel *preview = new QLabel(&dlg);
+    preview->setWordWrap(true);
+    preview->setTextFormat(Qt::RichText);
+    preview->setStyleSheet("color: #666666;");
+
+    QDialogButtonBox *buttons = new QDialogButtonBox(
+        QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dlg);
+    buttons->button(QDialogButtonBox::Ok)->setText("Create");
+
+    QFormLayout *form = new QFormLayout;
+    form->addRow("Project name:", nameEdit);
+    form->addRow("Type:", typeCombo);
+    form->addRow("Parent folder:", parentEdit);
+
+    QVBoxLayout *layout = new QVBoxLayout(&dlg);
+    layout->addLayout(form);
+    layout->addWidget(preview);
+    layout->addWidget(buttons);
+
+    // Live preview of exactly what will be created, plus the report slug.
+    auto refreshPreview = [&]() {
+        const QString name = nameEdit->text().trimmed();
+        QString parent = parentEdit->text().trimmed();
+        while (parent.endsWith('/')) parent.chop(1);
+        const bool valid = !name.isEmpty();
+        buttons->button(QDialogButtonBox::Ok)->setEnabled(valid);
+        if (!valid) {
+            preview->setText("Enter a project name to scaffold its Refresher + EOD Summary prompts.");
+            return;
+        }
+        const QString folder = parent.isEmpty() ? name : parent + "/" + name;
+        preview->setText(QString(
+            "Creates <b>%1</b><br>&nbsp;&nbsp;• Refresher<br>&nbsp;&nbsp;• EOD Summary"
+            "<br>Reports slug: <code>%2-SESSION-*.md</code>")
+            .arg(folder.toHtmlEscaped(), projectSlug(name).toHtmlEscaped()));
+    };
+    connect(nameEdit, &QLineEdit::textChanged, &dlg, refreshPreview);
+    connect(parentEdit, &QLineEdit::textChanged, &dlg, refreshPreview);
+    refreshPreview();
+
+    connect(buttons, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
+    nameEdit->setFocus();
+
+    if (dlg.exec() != QDialog::Accepted)
+        return;
+
+    const QString name = nameEdit->text().trimmed();
+    if (name.isEmpty())
+        return;
+    QString parent = parentEdit->text().trimmed();
+    while (parent.endsWith('/')) parent.chop(1);
+    const QString targetFolder = parent.isEmpty() ? name : parent + "/" + name;
+
+    // Guard against re-scaffolding a project that already has these prompts.
+    bool alreadyExists = false;
+    for (const Prompt &p : prompts) {
+        if (p.folderPath == targetFolder &&
+            (p.title == "Refresher" || p.title == "EOD Summary")) {
+            alreadyExists = true;
+            break;
+        }
+    }
+    if (alreadyExists) {
+        const auto choice = QMessageBox::question(this, "Project already exists",
+            QString("%1 already has a Refresher or EOD Summary prompt.\n\n"
+                    "Add another pair anyway?").arg(targetFolder),
+            QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+        if (choice != QMessageBox::Yes)
+            return;
+    }
+
+    const QPair<QString, QString> bodies =
+        projectTemplateBodies(name, typeCombo->currentIndex());
+
+    auto addPrompt = [this](const QString &title, const QString &body,
+                            const QString &folderPath) {
+        Prompt p;
+        p.id = generateId();
+        p.title = title;
+        p.body = body;
+        p.folderPath = folderPath;
+        p.created = QDateTime::currentDateTime();
+        p.modified = p.created;
+        prompts.append(p);
+        QModelIndex folderIndex = ensureFolderPath(folderPath);
+        folderModel->insertPrompt(folderIndex, p.title, p.id);
+    };
+
+    addPrompt("Refresher", bodies.first, targetFolder);
+    addPrompt("EOD Summary", bodies.second, targetFolder);
+
+    savePrompts();
+    updatePromptList();
+    updateUI();
+
+    // Reveal and select the new project folder so the result is visible.
+    QModelIndex src = ensureFolderPath(targetFolder);
+    QModelIndex proxy = folderProxyModel->mapFromSource(src);
+    if (proxy.isValid()) {
+        folderTreeView->expand(proxy);
+        folderTreeView->setCurrentIndex(proxy);
+        folderTreeView->scrollTo(proxy);
+    }
+
+    statusBar()->showMessage(
+        QString("Created project %1 (Refresher + EOD Summary)").arg(targetFolder));
 }
 
 void MainWindow::openApiSettings()

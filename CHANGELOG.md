@@ -5,6 +5,20 @@ All notable changes to PromptManager will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2026-08-02
+
+### Added
+- **New Project** — scaffold a project's **Refresher** and **EOD Summary** prompt
+  pair from a type template in one step, instead of hand-writing them each time.
+  Available from **File → New Project…** (creates under `Prompts`) and from the
+  folder-tree right-click menu as **New Project Here…** (creates under the
+  clicked folder). A small dialog takes the project **name**, a **type**
+  (Android / Python / Rust / Node.js / C++ / Generic), and the **parent folder**,
+  and shows a live preview of what will be created plus the report slug. The
+  generated prompts point session reports at `/media/veracrypt1/AICodeLogs/`
+  using a `<slug>-SESSION-*.md` name and enforce the no-attribution rule. Adding
+  to a project that already has these prompts asks for confirmation first
+
 ## [2.4.1] - 2026-07-27
 
 ### Changed

@@ -12,6 +12,10 @@ A Qt6-based desktop application for organizing and managing text prompts/snippet
   title, and auto-sort folders by name (A–Z / Z–A) or recency (Newest / Oldest,
   based on the most recently modified prompt inside). Prompts keep their manual
   drag-and-drop order
+- **New Project Scaffolding**: Create a project's **Refresher** + **EOD Summary**
+  prompt pair from a type template (Android / Python / Rust / Node.js / C++ /
+  Generic) in one step, via **File → New Project…** or the folder tree's
+  **New Project Here…** right-click action
 - **Import/Export**: Support for JSON and CSV formats
 - **Auto-Save**: Changes are automatically persisted
 - **Keyboard Shortcuts**: Efficient workflow with keyboard shortcuts

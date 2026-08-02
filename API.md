@@ -75,7 +75,7 @@ A **prompt** is:
 Liveness probe. **No auth required.**
 
 ```json
-{ "status": "ok", "service": "prompt-manager", "version": "2.4.1" }
+{ "status": "ok", "service": "prompt-manager", "version": "2.5.0" }
 ```
 
 ---

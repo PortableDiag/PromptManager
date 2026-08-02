@@ -127,6 +127,11 @@ private:
     // API server lifecycle (reads key/port/enabled from QSettings).
     void startApiServerFromSettings();
 
+    // Scaffold a new project's Refresher + EOD Summary prompt pair from a type
+    // template into <presetParentFolder>/<name>. presetParentFolder defaults to
+    // "Prompts" from the File menu, or the right-clicked folder's own path.
+    void showNewProjectDialog(const QString &presetParentFolder);
+
     void updatePromptList();
     void filterPrompts();
 

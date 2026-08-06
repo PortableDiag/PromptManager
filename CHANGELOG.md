@@ -5,6 +5,25 @@ All notable changes to PromptManager will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.1] - 2026-08-05
+
+### Fixed
+- **REST API silently ignored unknown fields.** Sending a misnamed field —
+  most commonly `{"content": …}` instead of `{"body": …}` — returned `200`
+  and echoed back the *unchanged* prompt, so a write that never happened was
+  indistinguishable from a successful one. `POST /prompts`, `PUT`/`PATCH
+  /prompts/{id}` and `POST /folders` now reject any unrecognised field with
+  `400`, naming it and suggesting the intended one
+  (`Unknown field 'content' (did you mean 'body'?). Allowed fields: …`)
+- **A no-op update no longer bumps `modified` or rewrites the store.** An update
+  whose values all match what's already stored returns `200` with the prompt
+  untouched. Previously every request stamped `modified` and saved to disk —
+  and since `modified` drives the Newest/Oldest folder sort, a redundant or
+  typo'd write silently reordered the folder tree
+- `PUT`/`PATCH` now accept the server-managed `id`, `created` and `modified`
+  fields so a caller can `GET` a prompt and `PUT` the whole object back. They
+  are ignored rather than written; an `id` that doesn't match the URL is a `400`
+
 ## [2.5.0] - 2026-08-02
 
 ### Added

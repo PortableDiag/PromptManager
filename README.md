@@ -22,7 +22,9 @@ A Qt6-based desktop application for organizing and managing text prompts/snippet
 - **REST API**: Let agents and tools manage prompts with full parity to the app —
   create, edit, delete, and search over a local HTTP API. Enable it in
   **Settings → API Server…** (configurable port, generated API key, live `curl`
-  example). See [API.md](API.md) for the full reference.
+  example). Unknown fields in a request body are rejected with a `400` that
+  names the offender and suggests the intended field, so a typo can't look like
+  a successful write. See [API.md](API.md) for the full reference.
 
 ### Data Management
 - **Atomic Saves**: Safe file writing with automatic backups

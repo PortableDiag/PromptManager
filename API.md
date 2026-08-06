@@ -63,6 +63,23 @@ A **prompt** is:
   the path are created automatically. Empty/omitted → defaults to `General`.
 - `created` / `modified` — ISO-8601, managed by the server.
 
+### Unknown fields are rejected
+
+Request bodies are validated against the field list each endpoint accepts. An
+unrecognised key returns `400` naming the offender — it is never silently
+ignored:
+
+```json
+{
+  "error": "Unknown field 'content' (did you mean 'body'?). Allowed fields: title, body, folderPath",
+  "status": 400
+}
+```
+
+This exists because a typo'd field used to look like a successful write: the
+server returned `200` and echoed back the *unchanged* prompt, so the only way to
+notice was to read the store again.
+
 > **Note on folders:** folders are derived from prompt `folderPath`s. An *empty*
 > folder (created via the API or the app but containing no prompts) exists only in
 > the running session — it is not persisted across restarts until it holds a prompt.
@@ -75,7 +92,7 @@ A **prompt** is:
 Liveness probe. **No auth required.**
 
 ```json
-{ "status": "ok", "service": "prompt-manager", "version": "2.5.0" }
+{ "status": "ok", "service": "prompt-manager", "version": "2.5.1" }
 ```
 
 ---
@@ -120,6 +137,8 @@ Create a prompt. Returns `201` with the created object.
 | `body` | no | Defaults to empty string. |
 | `folderPath` | no | Defaults to `General`; nested folders auto-created. |
 
+Any other field is a `400` (see *Unknown fields are rejected* above).
+
 ```bash
 curl -X POST -H "Authorization: Bearer YOUR_KEY" \
      -H "Content-Type: application/json" \
@@ -137,6 +156,14 @@ Partial update — send only the fields you want to change.
 | `title` | If present, must be non-empty. |
 | `body` | Replaces the body. |
 | `folderPath` | Moves the prompt (nested folders auto-created). |
+| `id`, `created`, `modified` | Accepted but **server-managed and ignored**, so you can `GET` a prompt and `PUT` the whole object back. A mismatched `id` is a `400`. |
+
+Any other field is a `400` (see *Unknown fields are rejected* above).
+
+If none of the supplied values actually differ from what's stored, the update is
+a **no-op**: you get `200` with the prompt unchanged, `modified` is *not*
+touched, and nothing is written to disk. (`modified` drives the app's
+Newest/Oldest folder sort, so a redundant write would silently reorder the tree.)
 
 ```bash
 curl -X PUT -H "Authorization: Bearer YOUR_KEY" \
@@ -221,7 +248,7 @@ curl -X DELETE -H "Authorization: Bearer YOUR_KEY" \
 |---|---|
 | `200` | OK |
 | `201` | Created |
-| `400` | Bad request (missing/invalid field or malformed JSON) |
+| `400` | Bad request (missing, invalid or **unknown** field, or malformed JSON) |
 | `401` | Missing or invalid API key |
 | `404` | Unknown endpoint or resource |
 | `405` | Method not allowed on that resource |
@@ -243,3 +270,7 @@ Error bodies look like:
 - Use `folderPath` to keep prompts organized; you don't need to pre-create folders,
   but you can with `POST /folders`.
 - Be conservative with `DELETE /folders` — it removes all contained prompts.
+- **Check the status code, not your HTTP client's exit code.** The prompt text
+  field is `body`, not `content`. Since 2.5.1 a wrong field name is a loud `400`
+  rather than a silent no-op, but you still have to read the code to see it —
+  `curl` exits `0` on a `400`. Use `curl -f`, or parse the `error` key.

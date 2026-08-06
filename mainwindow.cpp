@@ -2676,8 +2676,55 @@ ApiResponse MainWindow::apiGetPrompt(const QString &id)
     return ApiResponse::ok(prompts[idx].toJson());
 }
 
+// Map a rejected field name onto the field the caller most likely meant.
+// Covers the common wrong-API guesses ("content" for "body") and plain
+// case slips ("folderpath").
+static QString suggestField(const QString &unknown, const QStringList &allowed)
+{
+    static const QHash<QString, QString> aliases = {
+        {"content", "body"},   {"text", "body"},        {"prompt", "body"},
+        {"value", "body"},     {"name", "title"},       {"folder", "folderPath"},
+        {"folder_path", "folderPath"}, {"path", "folderPath"},
+        {"folderpath", "path"}
+    };
+    const QString hint = aliases.value(unknown.toLower());
+    if (!hint.isEmpty() && allowed.contains(hint))
+        return hint;
+    for (const QString &field : allowed) {
+        if (field.compare(unknown, Qt::CaseInsensitive) == 0)
+            return field;
+    }
+    return QString();
+}
+
+// Reject a request body carrying fields the endpoint doesn't understand.
+// Silently ignoring an unknown key makes a typo ("content" instead of "body")
+// look like a successful write: the server returns 200 and echoes back the
+// untouched prompt, so the caller only finds out by reading the store again.
+// Name the offending field instead, and suggest the intended one.
+static bool rejectUnknownFields(const QJsonObject &input, const QStringList &allowed,
+                                ApiResponse *out)
+{
+    for (auto it = input.begin(); it != input.end(); ++it) {
+        if (allowed.contains(it.key()))
+            continue;
+        QString msg = QString("Unknown field '%1'").arg(it.key());
+        const QString hint = suggestField(it.key(), allowed);
+        if (!hint.isEmpty())
+            msg += QString(" (did you mean '%1'?)").arg(hint);
+        msg += QString(". Allowed fields: %1").arg(allowed.join(", "));
+        *out = ApiResponse::error(400, msg);
+        return true;
+    }
+    return false;
+}
+
 ApiResponse MainWindow::apiCreatePrompt(const QJsonObject &input)
 {
+    ApiResponse bad;
+    if (rejectUnknownFields(input, {"title", "body", "folderPath"}, &bad))
+        return bad;
+
     const QString title = input.value("title").toString().trimmed();
     if (title.isEmpty())
         return ApiResponse::error(400, "Field 'title' is required");
@@ -2710,17 +2757,38 @@ ApiResponse MainWindow::apiUpdatePrompt(const QString &id, const QJsonObject &in
     if (idx < 0)
         return ApiResponse::error(404, "Prompt not found");
 
+    // 'id', 'created' and 'modified' are server-managed: they are accepted so a
+    // caller can GET a prompt and PUT the whole object back, but they are never
+    // written from the request.
+    ApiResponse bad;
+    if (rejectUnknownFields(input, {"title", "body", "folderPath",
+                                    "id", "created", "modified"}, &bad))
+        return bad;
+
+    if (input.contains("id") && input.value("id").toString() != id)
+        return ApiResponse::error(400, "Field 'id' is immutable and cannot be changed");
+
     Prompt &p = prompts[idx];
     bool folderChanged = false;
+    bool titleChanged = false;
 
     if (input.contains("title")) {
         const QString t = input.value("title").toString().trimmed();
         if (t.isEmpty())
             return ApiResponse::error(400, "Field 'title' cannot be empty");
-        p.title = t;
+        if (t != p.title) {
+            p.title = t;
+            titleChanged = true;
+        }
     }
-    if (input.contains("body"))
-        p.body = input.value("body").toString();
+    bool bodyChanged = false;
+    if (input.contains("body")) {
+        const QString b = input.value("body").toString();
+        if (b != p.body) {
+            p.body = b;
+            bodyChanged = true;
+        }
+    }
     if (input.contains("folderPath")) {
         QString f = input.value("folderPath").toString().trimmed();
         if (f.isEmpty())
@@ -2730,6 +2798,14 @@ ApiResponse MainWindow::apiUpdatePrompt(const QString &id, const QJsonObject &in
             folderChanged = true;
         }
     }
+
+    // Nothing actually differs — return the prompt untouched rather than
+    // stamping 'modified' and rewriting the store. That timestamp feeds the
+    // Newest/Oldest folder sort, so a no-op write would silently reorder the
+    // tree.
+    if (!titleChanged && !bodyChanged && !folderChanged)
+        return ApiResponse::ok(p.toJson());
+
     p.modified = QDateTime::currentDateTime();
 
     // Reflect changes in the tree: move the node when the folder changed,
@@ -2821,6 +2897,10 @@ ApiResponse MainWindow::apiListFolders()
 
 ApiResponse MainWindow::apiCreateFolder(const QJsonObject &input)
 {
+    ApiResponse bad;
+    if (rejectUnknownFields(input, {"path"}, &bad))
+        return bad;
+
     const QString path = input.value("path").toString().trimmed();
     if (path.isEmpty())
         return ApiResponse::error(400, "Field 'path' is required");

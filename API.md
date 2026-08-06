@@ -63,22 +63,27 @@ A **prompt** is:
   the path are created automatically. Empty/omitted → defaults to `General`.
 - `created` / `modified` — ISO-8601, managed by the server.
 
-### Unknown fields are rejected
+### Request bodies are validated
 
-Request bodies are validated against the field list each endpoint accepts. An
-unrecognised key returns `400` naming the offender — it is never silently
-ignored:
+**Every field this API accepts is a JSON string**, and bodies are checked against
+the field list each endpoint accepts. Three ways a body is rejected, all with
+`400`, all naming the offender — none of them are silently ignored:
 
 ```json
-{
-  "error": "Unknown field 'content' (did you mean 'body'?). Allowed fields: title, body, folderPath",
-  "status": 400
-}
+{ "error": "Unknown field 'content' (did you mean 'body'?). Allowed fields: title, body, folderPath",
+  "status": 400 }
+
+{ "error": "Field 'body' must be a string, not a number", "status": 400 }
+
+{ "error": "Request body must be a JSON object", "status": 400 }
 ```
 
-This exists because a typo'd field used to look like a successful write: the
-server returned `200` and echoed back the *unchanged* prompt, so the only way to
-notice was to read the store again.
+All three used to look like success. A misnamed field was dropped and the server
+returned `200` echoing the *unchanged* prompt. A wrong-typed one was worse:
+`{"body": 123}` passed straight through to a string conversion that yields `""`,
+so it **blanked the prompt** and reported `200`. A body that was valid JSON but
+not an object (an array, say) parsed fine and then did nothing. In every case the
+only way to find out was to read the store back.
 
 > **Note on folders:** folders are derived from prompt `folderPath`s. An *empty*
 > folder (created via the API or the app but containing no prompts) exists only in
@@ -92,7 +97,7 @@ notice was to read the store again.
 Liveness probe. **No auth required.**
 
 ```json
-{ "status": "ok", "service": "prompt-manager", "version": "2.5.1" }
+{ "status": "ok", "service": "prompt-manager", "version": "2.5.2" }
 ```
 
 ---
@@ -113,6 +118,12 @@ curl -H "Authorization: Bearer YOUR_KEY" \
 ```json
 { "count": 1, "prompts": [ { "id": "…", "title": "…", … } ] }
 ```
+
+A `folder` that matches nothing returns `{"count": 0}` rather than `404`. That is
+deliberate, not an oversight: folders are derived from prompt `folderPath`s, so a
+folder holding no prompts and a folder that doesn't exist are **the same state** —
+there is nothing to tell apart. Use `GET /folders` if you need to know which
+folder paths the running session currently knows about.
 
 ---
 
@@ -137,7 +148,8 @@ Create a prompt. Returns `201` with the created object.
 | `body` | no | Defaults to empty string. |
 | `folderPath` | no | Defaults to `General`; nested folders auto-created. |
 
-Any other field is a `400` (see *Unknown fields are rejected* above).
+Any other field — or any non-string value — is a `400` (see *Request bodies are
+validated* above).
 
 ```bash
 curl -X POST -H "Authorization: Bearer YOUR_KEY" \
@@ -158,7 +170,8 @@ Partial update — send only the fields you want to change.
 | `folderPath` | Moves the prompt (nested folders auto-created). |
 | `id`, `created`, `modified` | Accepted but **server-managed and ignored**, so you can `GET` a prompt and `PUT` the whole object back. A mismatched `id` is a `400`. |
 
-Any other field is a `400` (see *Unknown fields are rejected* above).
+Any other field — or any non-string value — is a `400` (see *Request bodies are
+validated* above).
 
 If none of the supplied values actually differ from what's stored, the update is
 a **no-op**: you get `200` with the prompt unchanged, `modified` is *not*
@@ -248,7 +261,7 @@ curl -X DELETE -H "Authorization: Bearer YOUR_KEY" \
 |---|---|
 | `200` | OK |
 | `201` | Created |
-| `400` | Bad request (missing, invalid or **unknown** field, or malformed JSON) |
+| `400` | Bad request: missing, **unknown**, or **wrong-typed** field; a body that isn't a JSON object; or malformed JSON |
 | `401` | Missing or invalid API key |
 | `404` | Unknown endpoint or resource |
 | `405` | Method not allowed on that resource |
@@ -271,6 +284,7 @@ Error bodies look like:
   but you can with `POST /folders`.
 - Be conservative with `DELETE /folders` — it removes all contained prompts.
 - **Check the status code, not your HTTP client's exit code.** The prompt text
-  field is `body`, not `content`. Since 2.5.1 a wrong field name is a loud `400`
-  rather than a silent no-op, but you still have to read the code to see it —
-  `curl` exits `0` on a `400`. Use `curl -f`, or parse the `error` key.
+  field is `body`, not `content`, and every field is a string. Since 2.5.1 a wrong
+  field name is a loud `400`, and since 2.5.2 so is a wrong *type* — but you still
+  have to read the code to see it, because `curl` exits `0` on a `400`. Use
+  `curl -f`, or parse the `error` key.

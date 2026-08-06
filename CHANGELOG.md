@@ -5,6 +5,28 @@ All notable changes to PromptManager will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.2] - 2026-08-05
+
+### Fixed
+- **A wrong-typed field silently blanked a prompt.** v2.5.1 caught misnamed
+  fields but not misvalued ones: `{"body": 123}`, `{"body": null}` or
+  `{"body": ["x"]}` passed validation, reached a string conversion that yields
+  an empty string, and **erased the prompt's text while returning `200`**. That
+  was worse than the bug v2.5.1 fixed — the earlier one lost a write, this one
+  destroyed content. Every field the API accepts is a JSON string, and a
+  non-string value is now a `400` naming the field and the type it got
+  (`Field 'body' must be a string, not a number`)
+- **A body that was valid JSON but not an object was silently ignored.** Sending
+  an array (`[{"body":"x"}]`) parsed successfully, produced an empty field set,
+  and returned `200` having changed nothing — the same silent-success shape.
+  Now a `400` (`Request body must be a JSON object`)
+
+### Documented
+- `GET /prompts?folder=` naming a folder with no prompts returns `{"count": 0}`
+  rather than `404`, and that is deliberate: folders are derived from prompt
+  `folderPath`s, so an empty folder and a nonexistent one are indistinguishable
+  by construction. API.md now says so instead of leaving it ambiguous
+
 ## [2.5.1] - 2026-08-05
 
 ### Fixed

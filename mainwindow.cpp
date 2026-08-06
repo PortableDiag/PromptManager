@@ -2697,24 +2697,51 @@ static QString suggestField(const QString &unknown, const QStringList &allowed)
     return QString();
 }
 
-// Reject a request body carrying fields the endpoint doesn't understand.
-// Silently ignoring an unknown key makes a typo ("content" instead of "body")
-// look like a successful write: the server returns 200 and echoes back the
-// untouched prompt, so the caller only finds out by reading the store again.
-// Name the offending field instead, and suggest the intended one.
-static bool rejectUnknownFields(const QJsonObject &input, const QStringList &allowed,
+// Name a JSON value's type, for error messages.
+static QString jsonTypeName(const QJsonValue &v)
+{
+    switch (v.type()) {
+    case QJsonValue::Null:   return "null";
+    case QJsonValue::Bool:   return "a boolean";
+    case QJsonValue::Double: return "a number";
+    case QJsonValue::Array:  return "an array";
+    case QJsonValue::Object: return "an object";
+    default:                 return "a string";
+    }
+}
+
+// Validate a request body against the fields an endpoint accepts. Two ways a
+// body can be wrong, and both used to pass silently:
+//
+//   * an unknown field name — a typo ("content" instead of "body") was dropped,
+//     the server returned 200 and echoed back the untouched prompt, so the
+//     caller only found out by reading the store again;
+//   * a field of the wrong type — every field this API takes is a JSON string,
+//     and QJsonValue::toString() yields an empty string for a number, bool,
+//     null, array or object. So {"body": 123} *blanked* the prompt and reported
+//     success, which is worse than ignoring it.
+//
+// Name the offending field in both cases, and suggest the intended one when the
+// name is merely misspelled.
+static bool rejectInvalidFields(const QJsonObject &input, const QStringList &allowed,
                                 ApiResponse *out)
 {
     for (auto it = input.begin(); it != input.end(); ++it) {
-        if (allowed.contains(it.key()))
-            continue;
-        QString msg = QString("Unknown field '%1'").arg(it.key());
-        const QString hint = suggestField(it.key(), allowed);
-        if (!hint.isEmpty())
-            msg += QString(" (did you mean '%1'?)").arg(hint);
-        msg += QString(". Allowed fields: %1").arg(allowed.join(", "));
-        *out = ApiResponse::error(400, msg);
-        return true;
+        if (!allowed.contains(it.key())) {
+            QString msg = QString("Unknown field '%1'").arg(it.key());
+            const QString hint = suggestField(it.key(), allowed);
+            if (!hint.isEmpty())
+                msg += QString(" (did you mean '%1'?)").arg(hint);
+            msg += QString(". Allowed fields: %1").arg(allowed.join(", "));
+            *out = ApiResponse::error(400, msg);
+            return true;
+        }
+        if (!it.value().isString()) {
+            *out = ApiResponse::error(400,
+                QString("Field '%1' must be a string, not %2")
+                    .arg(it.key(), jsonTypeName(it.value())));
+            return true;
+        }
     }
     return false;
 }
@@ -2722,7 +2749,7 @@ static bool rejectUnknownFields(const QJsonObject &input, const QStringList &all
 ApiResponse MainWindow::apiCreatePrompt(const QJsonObject &input)
 {
     ApiResponse bad;
-    if (rejectUnknownFields(input, {"title", "body", "folderPath"}, &bad))
+    if (rejectInvalidFields(input, {"title", "body", "folderPath"}, &bad))
         return bad;
 
     const QString title = input.value("title").toString().trimmed();
@@ -2761,7 +2788,7 @@ ApiResponse MainWindow::apiUpdatePrompt(const QString &id, const QJsonObject &in
     // caller can GET a prompt and PUT the whole object back, but they are never
     // written from the request.
     ApiResponse bad;
-    if (rejectUnknownFields(input, {"title", "body", "folderPath",
+    if (rejectInvalidFields(input, {"title", "body", "folderPath",
                                     "id", "created", "modified"}, &bad))
         return bad;
 
@@ -2898,7 +2925,7 @@ ApiResponse MainWindow::apiListFolders()
 ApiResponse MainWindow::apiCreateFolder(const QJsonObject &input)
 {
     ApiResponse bad;
-    if (rejectUnknownFields(input, {"path"}, &bad))
+    if (rejectInvalidFields(input, {"path"}, &bad))
         return bad;
 
     const QString path = input.value("path").toString().trimmed();

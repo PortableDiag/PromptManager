@@ -181,7 +181,7 @@ ApiResponse ApiServer::route(const QString &method, const QString &path,
         QJsonObject b;
         b["status"] = "ok";
         b["service"] = "prompt-manager";
-        b["version"] = "2.5.1";
+        b["version"] = "2.5.2";
         return ApiResponse::ok(b);
     }
 
@@ -195,8 +195,12 @@ ApiResponse ApiServer::route(const QString &method, const QString &path,
         QJsonDocument doc = QJsonDocument::fromJson(body, &perr);
         if (perr.error != QJsonParseError::NoError)
             return ApiResponse::error(400, "Invalid JSON body: " + perr.errorString());
-        if (doc.isObject())
-            input = doc.object();
+        // Valid JSON that isn't an object (an array, a bare string, a number)
+        // used to leave `input` empty and fall through as a no-op 200 — the
+        // same silent-success trap as an unknown field name.
+        if (!doc.isObject())
+            return ApiResponse::error(400, "Request body must be a JSON object");
+        input = doc.object();
     }
 
     const QStringList parts = path.split('/', Qt::SkipEmptyParts); // e.g. api, prompts, {id}

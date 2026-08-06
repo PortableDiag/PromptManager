@@ -2942,7 +2942,7 @@ ApiResponse MainWindow::apiCreateFolder(const QJsonObject &input)
     return ApiResponse::created(b);
 }
 
-ApiResponse MainWindow::apiDeleteFolder(const QString &path)
+ApiResponse MainWindow::apiDeleteFolder(const QString &path, bool confirm)
 {
     const QString target = path.trimmed();
     if (target.isEmpty())
@@ -2972,6 +2972,29 @@ ApiResponse MainWindow::apiDeleteFolder(const QString &path)
     FolderTreeItem *folder = folderModel->getItem(folderIndex);
     if (!folder || folder->type() != FolderTreeItem::FolderType)
         return ApiResponse::error(404, "Folder not found");
+
+    // This takes every prompt inside the folder with it, recursively, and there
+    // is no undo. So without confirm=true the call is a DRY RUN: it reports
+    // exactly what would be destroyed and changes nothing. That way an
+    // accidental or mistyped DELETE costs nothing, and a caller who means it can
+    // see the blast radius first instead of guessing.
+    int promptCount = 0;
+    int folderCount = 0;
+    countItemsInFolder(folder, promptCount, folderCount);
+
+    if (!confirm) {
+        QJsonObject b;
+        b["error"] = QString("Refusing to delete '%1' without confirmation: this would "
+                             "remove %2 prompt(s) and %3 nested folder(s), irreversibly. "
+                             "Retry with &confirm=true if that is what you want.")
+                         .arg(target).arg(promptCount).arg(folderCount);
+        b["status"] = 400;
+        b["path"] = target;
+        b["wouldRemovePrompts"] = promptCount;
+        b["wouldRemoveFolders"] = folderCount;
+        b["dryRun"] = true;
+        return {400, b};
+    }
 
     // Remove all prompts contained (recursively) from the data store first.
     const QVector<FolderTreeItem *> contained = folder->getAllPrompts();

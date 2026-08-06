@@ -97,7 +97,7 @@ only way to find out was to read the store back.
 Liveness probe. **No auth required.**
 
 ```json
-{ "status": "ok", "service": "prompt-manager", "version": "2.5.2" }
+{ "status": "ok", "service": "prompt-manager", "version": "2.6.0" }
 ```
 
 ---
@@ -241,17 +241,42 @@ Returns `201`:
 
 ---
 
-### `DELETE /folders?path=...`
+### `DELETE /folders?path=...&confirm=true`
 Delete a folder **and every prompt inside it** (recursive). Irreversible.
 
+**Without `confirm=true` this is a dry run.** It changes nothing and returns `400`
+telling you exactly what the real call would destroy — so you can look before you
+leap, and a mistyped path costs nothing:
+
 ```bash
-curl -X DELETE -H "Authorization: Bearer YOUR_KEY" \
+curl -X DELETE -H "X-API-Key: YOUR_KEY" \
      "http://127.0.0.1:8770/api/folders?path=Work/Email"
+```
+
+```json
+{
+  "error": "Refusing to delete 'Work/Email' without confirmation: this would remove 3 prompt(s) and 1 nested folder(s), irreversibly. Retry with &confirm=true if that is what you want.",
+  "status": 400,
+  "path": "Work/Email",
+  "wouldRemovePrompts": 3,
+  "wouldRemoveFolders": 1,
+  "dryRun": true
+}
+```
+
+Add `&confirm=true` to actually delete:
+
+```bash
+curl -X DELETE -H "X-API-Key: YOUR_KEY" \
+     "http://127.0.0.1:8770/api/folders?path=Work/Email&confirm=true"
 ```
 
 ```json
 { "deleted": "Work/Email", "promptsRemoved": 3 }
 ```
+
+A path that doesn't resolve is still a `404`, checked before the guard — so a dry
+run also tells you the folder exists.
 
 ---
 
@@ -282,7 +307,10 @@ Error bodies look like:
   to disk on every mutation.
 - Use `folderPath` to keep prompts organized; you don't need to pre-create folders,
   but you can with `POST /folders`.
-- Be conservative with `DELETE /folders` — it removes all contained prompts.
+- **`DELETE /folders` needs `&confirm=true`.** Without it you get a `400` dry run
+  reporting how many prompts and nested folders the real call would destroy. Use
+  the dry run first; it is free and it is the only preview you get, because there
+  is no undo.
 - **Check the status code, not your HTTP client's exit code.** The prompt text
   field is `body`, not `content`, and every field is a string. Since 2.5.1 a wrong
   field name is a loud `400`, and since 2.5.2 so is a wrong *type* — but you still

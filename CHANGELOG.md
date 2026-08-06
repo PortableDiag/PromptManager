@@ -5,6 +5,19 @@ All notable changes to PromptManager will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2026-08-05
+
+### Changed
+- **`DELETE /folders` now requires `&confirm=true`** — and without it performs a
+  **dry run** instead of deleting. The call removes a folder and every prompt
+  inside it recursively, with no undo, and previously a single mistyped path
+  destroyed data with no warning. The unconfirmed call now changes nothing and
+  returns `400` with `wouldRemovePrompts` / `wouldRemoveFolders`, so the blast
+  radius is visible before you commit to it. A nonexistent path still `404`s
+  first, so a dry run also confirms the folder exists.
+
+  **Breaking:** existing callers that delete folders must add `&confirm=true`.
+
 ## [2.5.2] - 2026-08-05
 
 ### Fixed

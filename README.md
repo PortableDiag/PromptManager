@@ -24,8 +24,9 @@ A Qt6-based desktop application for organizing and managing text prompts/snippet
   **Settings → API Server…** (configurable port, generated API key, live `curl`
   example). Request bodies are validated: an unknown field, a wrong-typed value,
   or a body that isn't a JSON object all return a `400` naming the offender, so
-  a malformed call can never look like a successful write. See
-  [API.md](API.md) for the full reference.
+  a malformed call can never look like a successful write. Destructive folder
+  deletes require an explicit confirmation and otherwise run as a dry run that
+  reports what would be lost. See [API.md](API.md) for the full reference.
 
 ### Data Management
 - **Atomic Saves**: Safe file writing with automatic backups

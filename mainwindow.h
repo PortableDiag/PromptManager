@@ -53,7 +53,7 @@ public:
     ApiResponse apiDeletePrompt(const QString &id);
     ApiResponse apiListFolders();
     ApiResponse apiCreateFolder(const QJsonObject &input);
-    ApiResponse apiDeleteFolder(const QString &path);
+    ApiResponse apiDeleteFolder(const QString &path, bool confirm);
 
 protected:
     void closeEvent(QCloseEvent *event) override;

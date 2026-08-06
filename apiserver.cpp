@@ -181,7 +181,7 @@ ApiResponse ApiServer::route(const QString &method, const QString &path,
         QJsonObject b;
         b["status"] = "ok";
         b["service"] = "prompt-manager";
-        b["version"] = "2.5.2";
+        b["version"] = "2.6.0";
         return ApiResponse::ok(b);
     }
 
@@ -233,7 +233,8 @@ ApiResponse ApiServer::route(const QString &method, const QString &path,
         if (method == "POST")
             return m_window->apiCreateFolder(input);
         if (method == "DELETE")
-            return m_window->apiDeleteFolder(query.value("path"));
+            return m_window->apiDeleteFolder(query.value("path"),
+                                             query.value("confirm") == "true");
         return ApiResponse::error(405, "Method not allowed");
     }
 

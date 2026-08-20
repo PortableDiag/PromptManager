@@ -5,6 +5,18 @@ All notable changes to PromptManager will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.1] - 2026-08-20
+
+### Fixed
+- **Corrected stale no-op guidance in the v2.7.0 release notes and the live
+  prompt corpus.** Since v2.5.1, a `PUT` whose supplied values all match the
+  stored prompt returns `200` without writing and leaves `modified` untouched.
+  The v2.7.0 notes incorrectly said a redundant write still bumped `modified`,
+  and that sentence had also been copied into 44 project EOD prompts. The
+  release notes and existing prompts now agree with the implemented API
+  behavior; only a real value change updates the timestamp and can affect the
+  Newest/Oldest folder order.
+
 ## [2.7.0] - 2026-08-20
 
 ### Changed
@@ -17,8 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   carries an explicit step: check whether a command, path, filename, version,
   default or settled decision changed this session, and if so `GET` the prompt,
   edit it and `PUT` it back — and if nothing went stale, say so and change
-  nothing (a redundant write bumps `modified`, which drives the Newest/Oldest
-  folder sort)
+  nothing (a matching `PUT` is a no-op that leaves `modified` untouched; only
+  real changes affect the Newest/Oldest folder sort)
 - The generated **Refresher** now names where it lives — the project's folder in
   Prompt Manager and the API base URL — and says that when a prompt contradicts
   the code, the code wins and the prompt is what needs fixing

@@ -15,7 +15,11 @@ A Qt6-based desktop application for organizing and managing text prompts/snippet
 - **New Project Scaffolding**: Create a project's **Refresher** + **EOD Summary**
   prompt pair from a type template (Android / Python / Rust / Node.js / C++ /
   Generic) in one step, via **File → New Project…** or the folder tree's
-  **New Project Here…** right-click action
+  **New Project Here…** right-click action. The generated pair points session
+  reports at an out-of-repo log directory, names the project's own folder in the
+  store, and makes updating these prompts an explicit end-of-session step — they
+  are documentation nothing compiles, so without a prompt saying so they rot
+  unnoticed
 - **Import/Export**: Support for JSON and CSV formats
 - **Auto-Save**: Changes are automatically persisted
 - **Keyboard Shortcuts**: Efficient workflow with keyboard shortcuts

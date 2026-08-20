@@ -5,6 +5,27 @@ All notable changes to PromptManager will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] - 2026-08-20
+
+### Changed
+- **New Project templates now tell the agent to update its prompts.** The
+  generated **EOD Summary** ended at "update the README and CHANGELOG, bump,
+  commit and push" — so the prompts themselves, which are documentation living
+  *outside* the repo, were never revisited and quietly rotted. Nothing compiles
+  them and no test fails when they go stale, so the only signal was the user
+  noticing an agent following an out-of-date instruction. The EOD template now
+  carries an explicit step: check whether a command, path, filename, version,
+  default or settled decision changed this session, and if so `GET` the prompt,
+  edit it and `PUT` it back — and if nothing went stale, say so and change
+  nothing (a redundant write bumps `modified`, which drives the Newest/Oldest
+  folder sort)
+- The generated **Refresher** now names where it lives — the project's folder in
+  Prompt Manager and the API base URL — and says that when a prompt contradicts
+  the code, the code wins and the prompt is what needs fixing
+- Both templates are now given the project's full folder path, so a generated
+  prompt can point an agent straight at itself instead of describing the store
+  in the abstract
+
 ## [2.6.0] - 2026-08-05
 
 ### Changed

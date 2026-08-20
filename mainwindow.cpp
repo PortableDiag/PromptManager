@@ -2342,7 +2342,8 @@ QStringList projectTypeLabels()
 // hand-written pairs already in the store (only the type-specific "get up to
 // speed" bullet, the descriptor, and the slug differ).
 QPair<QString, QString> projectTemplateBodies(const QString &name,
-                                              int typeIndex)
+                                              int typeIndex,
+                                              const QString &folderPath)
 {
     const QString slug = projectSlug(name);
 
@@ -2392,15 +2393,18 @@ QPair<QString, QString> projectTemplateBodies(const QString &name,
         "This is %1, %2. Get fully up to speed before we start, but change nothing yet:\n\n"
         "%3\n"
         "- Review prior session reports in /media/veracrypt1/AICodeLogs/ (files named %4-SESSION-*.md) for where we left off.\n"
-        "%5\n\n"
+        "%5\n"
+        "- This prompt and its EOD Summary live in Prompt Manager under %7 (API on http://127.0.0.1:8770/api). They are project documentation kept outside the repo, so nothing compiles them — if they contradict what you find in the code, the code wins and the prompt needs fixing.\n\n"
         "Then give me a concise summary of the %6 and its current state and confirm you're ready.")
-        .arg(name, descriptor, gitBullet, slug, buildBullet, subject);
+        .arg(name, descriptor, gitBullet, slug, buildBullet, subject, folderPath);
 
     const QString eod = QString(
         "Create a code session report capturing everything we did this session that worked — detailed and thorough enough to serve as pickup context in a future session. Include files changed/added, features, and the important technical details and decisions.\n\n"
         "Write the report to /media/veracrypt1/AICodeLogs/ as %1-SESSION-YYYY-MM-DD.md — NOT inside the repo (this repo is public).\n\n"
-        "Then update the README and CHANGELOG, bump the version and tag/release if we shipped, and commit and push. Never put your name or any AI attribution on commits, tags, releases, or the report.")
-        .arg(slug);
+        "Then update the README and CHANGELOG, bump the version and tag/release if we shipped, and commit and push.\n\n"
+        "Then update this project's prompts in Prompt Manager — the Refresher and EOD Summary under %2, reachable at http://127.0.0.1:8770/api (key in ~/.config/PromptManager/\"Prompt Manager.conf\" under [api]). They are documentation that lives outside the repo, so nothing compiles them and nobody notices when they rot. Ask specifically: did a command, path, filename, version, default or settled decision change this session? If so, GET the prompt, edit its body and PUT it back; if nothing they say went stale, say so and change nothing.\n\n"
+        "Never put your name or any AI attribution on commits, tags, releases, or the report.")
+        .arg(slug, folderPath);
 
     return { refresher, eod };
 }
@@ -2496,7 +2500,7 @@ void MainWindow::showNewProjectDialog(const QString &presetParentFolder)
     }
 
     const QPair<QString, QString> bodies =
-        projectTemplateBodies(name, typeCombo->currentIndex());
+        projectTemplateBodies(name, typeCombo->currentIndex(), targetFolder);
 
     auto addPrompt = [this](const QString &title, const QString &body,
                             const QString &folderPath) {

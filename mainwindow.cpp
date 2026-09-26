@@ -193,7 +193,7 @@ void MainWindow::setupUI()
     folderHeaderLayout->addWidget(folderLabel);
     folderHeaderLayout->addStretch();
 
-    toggleFoldersButton = new QPushButton("Collapse All");
+    toggleFoldersButton = new QPushButton("Expand All");
     toggleFoldersButton->setToolTip("Collapse or expand all folders");
     toggleFoldersButton->setStyleSheet(R"(
         QPushButton {
@@ -745,7 +745,8 @@ void MainWindow::loadPrompts()
     }
 
     refreshFolderSortTimes();
-    folderTreeView->expandAll();
+    // Start with only the top-level folders open; everything below stays collapsed.
+    folderTreeView->expandToDepth(0);
 }
 
 static void collectPromptIdsInTreeOrder(FolderTreeModel *model,

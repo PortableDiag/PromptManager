@@ -97,7 +97,7 @@ only way to find out was to read the store back.
 Liveness probe. **No auth required.**
 
 ```json
-{ "status": "ok", "service": "prompt-manager", "version": "2.7.1" }
+{ "status": "ok", "service": "prompt-manager", "version": "2.8.0" }
 ```
 
 ---

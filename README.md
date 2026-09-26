@@ -2,7 +2,7 @@
 
 A Qt6-based desktop application for organizing and managing text prompts/snippets in a hierarchical folder structure. Perfect for developers, writers, and anyone who needs to organize reusable text snippets.
 
-Current release: **v2.7.1**.
+Current release: **v2.8.0**.
 
 ## Features
 

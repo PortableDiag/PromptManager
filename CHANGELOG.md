@@ -5,6 +5,15 @@ All notable changes to PromptManager will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.0] - 2026-09-26
+
+### Changed
+- **The Folders tree now opens collapsed below the top level.** On launch only
+  the top-level folders are expanded; every subfolder and prompt beneath them
+  starts collapsed, and the toggle button reads "Expand All". Previously the
+  whole tree opened fully expanded, so it had to be collapsed by hand on every
+  start.
+
 ## [2.7.1] - 2026-08-20
 
 ### Fixed

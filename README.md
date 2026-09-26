@@ -14,6 +14,9 @@ Current release: **v2.8.0**.
   title, and auto-sort folders by name (A–Z / Z–A) or recency (Newest / Oldest,
   based on the most recently modified prompt inside). Prompts keep their manual
   drag-and-drop order
+- **Tidy Start-up View**: The folder tree opens with only the top-level folders
+  expanded; subfolders and prompts start collapsed. **Expand All** / **Collapse
+  All** toggles the whole tree
 - **New Project Scaffolding**: Create a project's **Refresher** + **EOD Summary**
   prompt pair from a type template (Android / Python / Rust / Node.js / C++ /
   Generic) in one step, via **File → New Project…** or the folder tree's
